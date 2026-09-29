@@ -35,7 +35,7 @@ All notable changes to this project are documented here. The format follows
 ### Changed
 
 - **Renamed to Watcher** (previously "Frontend Secrets Auditor"): new eye-and-keyhole icon,
-  repository `atharvasail/watcher`, release asset `watcher-vX.Y.Z.zip`, exports `watcher-report_*`.
+  repository `ATHARVASAIL/Watcher`, release asset `watcher-vX.Y.Z.zip`, exports `watcher-report_*`.
 - Codebase split into modules: `shared/`, `background/`, `scanner/lib`, `scanner/rules/*`,
   `engine`, `sources`, `scan`, and popup `dom`/`render`/`export`.
 - The service worker now performs injection, so scans survive the popup closing.
@@ -55,6 +55,6 @@ All notable changes to this project are documented here. The format follows
 - Initial MV3 extension: on-demand, read-only scan of inline/linked JS, CSS, HTML and Web Storage;
   38 rules; masked results; JSON export; strict extension CSP with Trusted Types.
 
-[Unreleased]: https://github.com/atharvasail/watcher/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/atharvasail/watcher/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/atharvasail/watcher/releases/tag/v0.1.0
+[Unreleased]: https://github.com/ATHARVASAIL/Watcher/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ATHARVASAIL/Watcher/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/ATHARVASAIL/Watcher/releases/tag/v0.1.0

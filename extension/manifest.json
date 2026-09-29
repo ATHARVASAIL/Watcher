@@ -4,7 +4,7 @@
   "short_name": "Watcher",
   "version": "0.2.0",
   "description": "Find secrets exposed in your own web app's frontend: JS bundles, source maps, HTML, CSS, storage and cookies. Local-only.",
-  "homepage_url": "https://github.com/atharvasail/watcher",
+  "homepage_url": "https://github.com/ATHARVASAIL/Watcher",
   "minimum_chrome_version": "116",
   "permissions": ["activeTab", "scripting", "storage"],
   "background": {

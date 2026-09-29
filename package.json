@@ -7,12 +7,12 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/atharvasail/watcher.git"
+    "url": "git+https://github.com/ATHARVASAIL/Watcher.git"
   },
   "bugs": {
-    "url": "https://github.com/atharvasail/watcher/issues"
+    "url": "https://github.com/ATHARVASAIL/Watcher/issues"
   },
-  "homepage": "https://github.com/atharvasail/watcher#readme",
+  "homepage": "https://github.com/ATHARVASAIL/Watcher#readme",
   "engines": {
     "node": ">=22.2"
   },

@@ -7,7 +7,7 @@
  */
 
 const TOOL_NAME = 'Watcher';
-const INFO_URI = 'https://github.com/atharvasail/watcher';
+const INFO_URI = 'https://github.com/ATHARVASAIL/Watcher';
 
 const cfg = () => globalThis.__WATCHER.config;
 const common = () => globalThis.__WATCHER.common;

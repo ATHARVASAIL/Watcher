@@ -7,7 +7,7 @@
 (() => {
   'use strict';
 
-  const REPO = 'atharvasail/watcher';
+  const REPO = 'ATHARVASAIL/Watcher';
   const root = document.documentElement;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -311,7 +311,7 @@
 
   const TAG_RE = /^v?\d+\.\d+\.\d+$/;
   const DOWNLOAD_RE =
-    /^https:\/\/github\.com\/atharvasail\/watcher\/releases\/download\/[\w.-]+\/watcher\.zip$/;
+    /^https:\/\/github\.com\/ATHARVASAIL\/Watcher\/releases\/download\/[\w.-]+\/watcher\.zip$/i;
   const API_OPTIONS = {
     headers: { Accept: 'application/vnd.github+json' },
     referrerPolicy: 'no-referrer',

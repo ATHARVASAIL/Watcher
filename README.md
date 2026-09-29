@@ -10,16 +10,16 @@
 
 <br />
 
-[![CI](https://img.shields.io/github/actions/workflow/status/atharvasail/watcher/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/atharvasail/watcher/actions/workflows/ci.yml)
-[![CodeQL](https://img.shields.io/github/actions/workflow/status/atharvasail/watcher/codeql.yml?branch=main&style=for-the-badge&logo=github&label=CodeQL)](https://github.com/atharvasail/watcher/actions/workflows/codeql.yml)
-[![Release](https://img.shields.io/github/v/release/atharvasail/watcher?style=for-the-badge&color=0b57b8&logo=googlechrome&logoColor=white)](https://github.com/atharvasail/watcher/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/ATHARVASAIL/Watcher/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/ATHARVASAIL/Watcher/actions/workflows/ci.yml)
+[![CodeQL](https://img.shields.io/github/actions/workflow/status/ATHARVASAIL/Watcher/codeql.yml?branch=main&style=for-the-badge&logo=github&label=CodeQL)](https://github.com/ATHARVASAIL/Watcher/actions/workflows/codeql.yml)
+[![Release](https://img.shields.io/github/v/release/ATHARVASAIL/Watcher?style=for-the-badge&color=0b57b8&logo=googlechrome&logoColor=white)](https://github.com/ATHARVASAIL/Watcher/releases)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-22d3ee?style=for-the-badge&logo=googlechrome&logoColor=white)](extension/manifest.json)
 [![Privacy](https://img.shields.io/badge/data_sent-nothing-15803d?style=for-the-badge&logo=shield&logoColor=white)](PRIVACY.md)
 [![License](https://img.shields.io/badge/license-MIT-7c3aed?style=for-the-badge)](LICENSE)
 
 ### Find the API keys, tokens and passwords your web app shipped to the browser, before someone else does.
 
-[**Website**](https://atharvasail.github.io/watcher/) · [**Install**](#-install) · [**Features**](#-features) · [**How it works**](#-how-it-works) · [**Security**](#-security--privacy) · [**Contribute**](CONTRIBUTING.md)
+[**Website**](https://atharvasail.github.io/Watcher/) · [**Install**](#-install) · [**Features**](#-features) · [**How it works**](#-how-it-works) · [**Security**](#-security--privacy) · [**Contribute**](CONTRIBUTING.md)
 
 <br />
 
@@ -96,7 +96,7 @@
 
 ## 🚀 Install
 
-1. Download **`watcher.zip`** from the [website](https://atharvasail.github.io/watcher/) or the [latest release](https://github.com/atharvasail/watcher/releases/latest) and unzip it.
+1. Download **`watcher.zip`** from the [website](https://atharvasail.github.io/Watcher/) or the [latest release](https://github.com/ATHARVASAIL/Watcher/releases/latest) and unzip it.
 2. Open `chrome://extensions` and switch on **Developer mode**.
 3. Click **Load unpacked** and select the unzipped folder.
 4. Pin Watcher to the toolbar. Shortcut: <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>.
@@ -108,7 +108,7 @@ Every release ships a `.sha256` file and a signed build-provenance attestation:
 
 ```bash
 sha256sum -c watcher-vX.Y.Z.zip.sha256
-gh attestation verify watcher-vX.Y.Z.zip --repo atharvasail/watcher
+gh attestation verify watcher-vX.Y.Z.zip --repo ATHARVASAIL/Watcher
 ```
 
 </details>
@@ -117,7 +117,7 @@ gh attestation verify watcher-vX.Y.Z.zip --repo atharvasail/watcher
 <summary><b>Install from source</b></summary>
 
 ```bash
-git clone https://github.com/atharvasail/watcher.git
+git clone https://github.com/ATHARVASAIL/Watcher.git
 ```
 
 Then **Load unpacked** the `extension/` folder. Works in Chrome and other Chromium browsers,
