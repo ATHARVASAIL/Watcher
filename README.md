@@ -3,27 +3,25 @@
 <a id="top"></a>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner-dark.svg" />
-  <source media="(prefers-color-scheme: light)" srcset="docs/assets/banner-light.svg" />
-  <img src="docs/assets/banner-dark.svg" alt="Watcher: sees the secrets your frontend gave away" width="100%" />
+  <source media="(prefers-color-scheme: dark)" srcset="assets/img/banner-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="assets/img/banner-light.svg" />
+  <img src="assets/img/banner-dark.svg" alt="Watcher: sees the secrets your frontend gave away" width="100%" />
 </picture>
 
 <br />
 
-[![CI](https://img.shields.io/github/actions/workflow/status/ATHARVASAIL/Watcher/ci.yml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/ATHARVASAIL/Watcher/actions/workflows/ci.yml)
-[![CodeQL](https://img.shields.io/github/actions/workflow/status/ATHARVASAIL/Watcher/codeql.yml?branch=main&style=for-the-badge&logo=github&label=CodeQL)](https://github.com/ATHARVASAIL/Watcher/actions/workflows/codeql.yml)
-[![Release](https://img.shields.io/github/v/release/ATHARVASAIL/Watcher?style=for-the-badge&color=0b57b8&logo=googlechrome&logoColor=white)](https://github.com/ATHARVASAIL/Watcher/releases)
+[![Website](https://img.shields.io/badge/website-live-5ce1f0?style=for-the-badge&logo=googlechrome&logoColor=white)](https://atharvasail.github.io/Watcher/)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-22d3ee?style=for-the-badge&logo=googlechrome&logoColor=white)](extension/manifest.json)
 [![Privacy](https://img.shields.io/badge/data_sent-nothing-15803d?style=for-the-badge&logo=shield&logoColor=white)](PRIVACY.md)
 [![License](https://img.shields.io/badge/license-MIT-7c3aed?style=for-the-badge)](LICENSE)
 
 ### Find the API keys, tokens and passwords your web app shipped to the browser, before someone else does.
 
-[**Website**](https://atharvasail.github.io/Watcher/) · [**Install**](#-install) · [**Features**](#-features) · [**How it works**](#-how-it-works) · [**Security**](#-security--privacy) · [**Contribute**](CONTRIBUTING.md)
+[**Website**](https://atharvasail.github.io/Watcher/) · [**Install**](#-install) · [**Features**](#-features) · [**How it works**](#-how-it-works) · [**Security**](#-security--privacy)
 
 <br />
 
-<img src="docs/assets/demo.gif" alt="Watcher demo: open the popup, scan, review findings, reveal, filter and export" width="100%" />
+<img src="assets/img/demo.gif" alt="Watcher demo: open the popup, scan, review findings, reveal, filter and export" width="100%" />
 
 </div>
 
@@ -32,7 +30,7 @@
 > [!IMPORTANT]
 > Watcher is a defensive tool. Only scan applications you own or are authorised to test.
 
-<img src="docs/assets/divider.svg" width="100%" alt="" />
+<img src="assets/img/divider.svg" width="100%" alt="" />
 
 ## ✨ Features
 
@@ -42,7 +40,7 @@
       <h3>🔑 55 detection rules</h3>
       <p>AWS, GitHub, Stripe, OpenAI, Anthropic, Slack, Supabase, Sentry, Vault and more, plus
       heuristic secrets, database URLs, internal hosts and debug leftovers.
-      <a href="docs/rules.md">See all rules →</a></p>
+      <a href="extension/scanner/rules/">See the rules →</a></p>
     </td>
     <td width="33%" valign="top">
       <h3>⚖️ Evidence, not alarm</h3>
@@ -92,37 +90,29 @@
   </tr>
 </table>
 
-<img src="docs/assets/divider.svg" width="100%" alt="" />
+<img src="assets/img/divider.svg" width="100%" alt="" />
 
 ## 🚀 Install
 
-1. Download **`watcher.zip`** from the [website](https://atharvasail.github.io/Watcher/) or the [latest release](https://github.com/ATHARVASAIL/Watcher/releases/latest) and unzip it.
+1. Download **`watcher.zip`** from the [website](https://atharvasail.github.io/Watcher/) (or from this repository) and unzip it.
 2. Open `chrome://extensions` and switch on **Developer mode**.
 3. Click **Load unpacked** and select the unzipped folder.
 4. Pin Watcher to the toolbar. Shortcut: <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>.
 
+Prefer the source? Clone the repository and **Load unpacked** the `extension/` folder. Works in
+Chrome, Edge, Brave, Opera, Arc and other Chromium browsers from version 116. To scan `file://`
+pages, also enable **Allow access to file URLs** on the extension's details page.
+
 <details>
 <summary><b>Verify the download</b></summary>
 
-Every release ships a `.sha256` file and a signed build-provenance attestation:
+The website prints the SHA-256 of `watcher.zip`. Compare it with yours:
 
 ```bash
-sha256sum -c watcher-vX.Y.Z.zip.sha256
-gh attestation verify watcher-vX.Y.Z.zip --repo ATHARVASAIL/Watcher
+sha256sum watcher.zip                        # Linux
+shasum -a 256 watcher.zip                    # macOS
+Get-FileHash watcher.zip -Algorithm SHA256   # Windows PowerShell
 ```
-
-</details>
-
-<details>
-<summary><b>Install from source</b></summary>
-
-```bash
-git clone https://github.com/ATHARVASAIL/Watcher.git
-```
-
-Then **Load unpacked** the `extension/` folder. Works in Chrome and other Chromium browsers,
-version 116 or later. To scan `file://` pages, also enable **Allow access to file URLs** on the
-extension's details page.
 
 </details>
 
@@ -152,10 +142,6 @@ extension's details page.
 
 </details>
 
-> [!TIP]
-> Try it without touching a real app: `npm run serve`, then open <http://localhost:8765>. The
-> fixture site has around 50 fake findings planted across every source type.
-
 ## 🎯 What it catches
 
 | Severity                                                                    | Examples                                                                                                      |
@@ -169,7 +155,7 @@ extension's details page.
 Heuristic findings are tagged **needs review**. Treat every Critical or High as compromised:
 rotate it, then remove it from the build and from the repository history.
 
-<img src="docs/assets/divider.svg" width="100%" alt="" />
+<img src="assets/img/divider.svg" width="100%" alt="" />
 
 ## 🧠 How it works
 
@@ -187,60 +173,32 @@ flowchart LR
 
 The scanner runs in Chrome's isolated world, so page scripts can't see or tamper with it. It
 re-reads the page's own files (from the browser cache where possible), runs every rule, checks
-source maps, and reports back to the service worker, which keeps results in memory only. Full
-details and the threat model are in [docs/architecture.md](docs/architecture.md).
+source maps, and reports back to the service worker, which keeps results in memory only.
 
 ## 🔒 Security & privacy
 
-| Guarantee                  | How it is enforced                                                                                     |
-| -------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 🏠 **Local only**          | Extension pages run with `connect-src 'none'`: they cannot make network requests at all.               |
-| 👀 **Read-only**           | No DOM, storage or cookie writes on the page. Tests assert zero DOM mutations after a scan.            |
-| 🧱 **XSS-safe UI**         | DOM built with `textContent` only; lint bans HTML sinks; Trusted Types make any `innerHTML` throw.     |
-| 🔐 **Minimal permissions** | `activeTab`, `scripting`, `storage`. No host permissions, content scripts or remote code, gated in CI. |
-| 💾 **No secrets on disk**  | Results live in session memory and vanish with the tab; accepted findings are salted SHA-256 hashes.   |
-| 📦 **Supply chain**        | Zero runtime dependencies, reproducible builds, SHA-256 checksums and signed build provenance.         |
+| Guarantee                  | How it is enforced                                                                                   |
+| -------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 🏠 **Local only**          | Extension pages run with `connect-src 'none'`: they cannot make network requests at all.             |
+| 👀 **Read-only**           | No DOM, storage or cookie writes on the page; the scanner runs in Chrome's isolated world.           |
+| 🧱 **XSS-safe UI**         | DOM built with `textContent` only; Trusted Types make any `innerHTML` throw.                         |
+| 🔐 **Minimal permissions** | `activeTab`, `scripting`, `storage`. No host permissions, content scripts or remote code.            |
+| 💾 **No secrets on disk**  | Results live in session memory and vanish with the tab; accepted findings are salted SHA-256 hashes. |
+| 📦 **Nothing hidden**      | Zero runtime dependencies. Plain JavaScript you can read in [`extension/`](extension/).              |
 
-Read more: [PRIVACY.md](PRIVACY.md) · [SECURITY.md](SECURITY.md) (report a vulnerability) ·
-[docs/store-listing.md](docs/store-listing.md) (Chrome Web Store notes)
+Read more: [PRIVACY.md](PRIVACY.md) · [SECURITY.md](SECURITY.md) (report a vulnerability)
 
-<img src="docs/assets/divider.svg" width="100%" alt="" />
+<img src="assets/img/divider.svg" width="100%" alt="" />
 
-## 🛠️ Development
-
-```bash
-npm ci
-npx playwright install chromium
-npm run verify   # lint · format · manifest + contrast gates · rules docs · unit + e2e tests · build
-```
-
-<details>
-<summary><b>All scripts</b></summary>
-
-| Command                  | What it does                                                            |
-| ------------------------ | ----------------------------------------------------------------------- |
-| `npm run serve`          | Fixture site with planted fake secrets at <http://localhost:8765>       |
-| `npm run site`           | Preview the project website at <http://localhost:4173>                  |
-| `npm run lint`           | ESLint, including `no-unsanitized` (blocks `innerHTML`-style sinks)     |
-| `npm test`               | Rule, export and tooling tests (`node:test`)                            |
-| `npm run test:e2e`       | Loads the extension in real Chromium and scans the fixture (Playwright) |
-| `npm run check:manifest` | Fails on new permissions, weaker CSP or missing files                   |
-| `npm run check:contrast` | WCAG AA contrast for the popup (light and dark) and the website         |
-| `npm run docs:rules`     | Regenerates [docs/rules.md](docs/rules.md) from the rule definitions    |
-| `npm run fp-baseline`    | Measures false positives against real library code                      |
-| `npm run build`          | Reproducible `dist/watcher-v<version>.zip` + `.sha256`                  |
-
-</details>
-
-<details>
-<summary><b>Project structure</b></summary>
+## 📁 Project structure
 
 ```
+index.html · 404.html · assets/   the website (served by GitHub Pages from the repository root)
+watcher.zip                        the packaged extension that the website's Download button serves
 extension/
 ├── manifest.json
 ├── background/service-worker.js   injects/stops scans, stores results, badge
-├── shared/common.js               config, grouping, hashing (all contexts)
-├── shared/triage.js               accepted findings as salted fingerprints
+├── shared/                        config, grouping, hashing, triage fingerprints
 ├── scanner/                       injected into the page's isolated world on demand
 │   ├── lib/helpers.js             entropy, placeholders, JWT decoding, host classification
 │   ├── rules/                     vendor · generic · infrastructure · debug
@@ -248,29 +206,31 @@ extension/
 │   ├── sources.js                 read-only collectors, own-origin fetch, source maps
 │   └── scan.js                    orchestration, cancel, post-passes
 └── popup/                         dom.js (safe DOM) · render.js · export.js · popup.js
-scripts/    build, manifest policy, contrast gate, rules docs, false-positive baseline
-tests/      node:test unit tests + Playwright end-to-end suite
-test-site/  fixture app with planted fake secrets (strict CSP)
 ```
-
-</details>
 
 ### 🌐 Website
 
-The download site lives in [`site/`](site/): plain HTML, CSS and JavaScript with no frameworks,
-no trackers and a strict Content Security Policy. It is set in Calibri; visitors without Calibri get
-[Carlito](https://github.com/googlefonts/carlito), a metric-identical open font the site hosts itself.
-Motion (cursor-tracking eye, scroll story, magnetic buttons) switches off under reduced-motion. Its download buttons point at
-`releases/latest/download/watcher.zip`, so they always serve the newest release.
+The website is plain HTML, CSS and JavaScript at the repository root: no frameworks, no trackers,
+no network requests and a strict Content Security Policy. It is set in Calibri; visitors without
+Calibri get [Carlito](https://github.com/googlefonts/carlito), a metric-identical open font the
+site hosts itself.
 
-- **GitHub Pages:** in the repository settings, set **Pages → Source** to **GitHub Actions**. The
-  `Website` workflow publishes `site/` on every push that changes it.
-- **Netlify / Cloudflare Pages:** deploy the `site/` folder as-is; `site/_headers` adds security headers.
+To publish it: **Settings → Pages → Build and deployment → Source: Deploy from a branch**, then
+choose **`main`** and **`/ (root)`** and save. The site goes live at
+<https://atharvasail.github.io/Watcher/>.
 
-Releasing: bump the version in `package.json` and `extension/manifest.json`, update
-[CHANGELOG.md](CHANGELOG.md), then push a `vX.Y.Z` tag. The release workflow tests, builds,
-attests and publishes the zip. Contribution guidelines and the rule format are in
-[CONTRIBUTING.md](CONTRIBUTING.md).
+<details>
+<summary><b>After changing the extension</b></summary>
+
+Rebuild `watcher.zip` from the contents of `extension/` (so `manifest.json` sits at the top of the
+zip), then update the SHA-256 shown in the download card of `index.html`.
+
+```bash
+cd extension && zip -r -X ../watcher.zip . && cd ..                        # macOS / Linux
+Compress-Archive -Path extension\* -DestinationPath watcher.zip -Force     # Windows PowerShell
+```
+
+</details>
 
 ## 🗺️ Roadmap
 
@@ -295,9 +255,9 @@ attests and publishes the zip. Contribution guidelines and the rule format are i
 
 <div align="center">
 
-<img src="docs/assets/logo.svg" width="56" alt="Watcher logo" />
+<img src="assets/img/logo.svg" width="56" alt="Watcher logo" />
 
-**Watcher** · [MIT License](LICENSE) · Made by [Atharva Sail](https://github.com/atharvasail)
+**Watcher** · [MIT License](LICENSE) · Made by [Atharva Sail](https://github.com/ATHARVASAIL)
 
 <sub><a href="#top">Back to top ↑</a></sub>
 

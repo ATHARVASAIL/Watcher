@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
     />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>Watcher · See what your frontend gave away</title>
@@ -107,9 +107,6 @@
         >
           <path d="M20 6 9 17l-5-5" />
         </symbol>
-        <symbol id="i-star" viewBox="0 0 24 24" fill="currentColor">
-          <path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" />
-        </symbol>
       </defs>
     </svg>
 
@@ -138,16 +135,13 @@
         <a class="nav-gh" href="https://github.com/ATHARVASAIL/Watcher" rel="noopener">
           <svg aria-hidden="true"><use href="#i-github" /></svg>
           <span class="nav-gh-label">GitHub</span>
-          <span class="stars" data-stars hidden
-            ><svg aria-hidden="true"><use href="#i-star" /></svg><span data-stars-count></span
-          ></span>
         </a>
         <a
           class="btn btn-solid btn-sm"
           aria-label="Download Watcher for Chrome"
           data-magnetic
-          data-download
-          href="https://github.com/ATHARVASAIL/Watcher/releases/latest/download/watcher.zip"
+          href="watcher.zip"
+          download
         >
           <span class="btn-inner"
             ><svg aria-hidden="true"><use href="#i-download" /></svg><span>Download</span></span
@@ -165,7 +159,7 @@
               <span class="pulse" aria-hidden="true"></span>
               <span><span class="hide-sm">Open-source </span>Chrome extension</span>
               <span class="kicker-ver"
-                ><span class="sep" aria-hidden="true">/</span> <span data-version>v0.2.0</span></span
+                ><span class="sep" aria-hidden="true">/</span> <span class="ver">v0.2.0</span></span
               >
             </p>
             <h1 class="display">
@@ -179,12 +173,7 @@
               server.
             </p>
             <div class="cta-row ld d7">
-              <a
-                class="btn btn-solid btn-lg"
-                data-magnetic
-                data-download
-                href="https://github.com/ATHARVASAIL/Watcher/releases/latest/download/watcher.zip"
-              >
+              <a class="btn btn-solid btn-lg" data-magnetic href="watcher.zip" download>
                 <span class="btn-inner"
                   ><svg aria-hidden="true"><use href="#i-download" /></svg
                   ><span>Download for Chrome</span></span
@@ -582,8 +571,11 @@
             <li data-reveal class="rd1">
               <span class="g-no">02</span>
               <h3>Read-only</h3>
-              <p>No writes to the page, its storage or cookies. Tests assert zero DOM changes per scan.</p>
-              <code>0 mutations · CI-checked</code>
+              <p>
+                No writes to the page, its storage or cookies. The scanner runs apart from the page's own
+                scripts.
+              </p>
+              <code>world: 'ISOLATED'</code>
             </li>
             <li data-reveal class="rd2">
               <span class="g-no">03</span>
@@ -605,9 +597,9 @@
             </li>
             <li data-reveal class="rd2">
               <span class="g-no">06</span>
-              <h3>Verifiable builds</h3>
-              <p>Reproducible zips with checksums and signed build provenance on every release.</p>
-              <code>sha256 · attestation</code>
+              <h3>Checkable download</h3>
+              <p>The SHA-256 of the zip is printed on this page, so you can confirm what you installed.</p>
+              <code>sha256sum watcher.zip</code>
             </li>
           </ul>
         </div>
@@ -619,9 +611,9 @@
           <h2 id="proof-title" class="sr-only">By the numbers</h2>
           <dl class="stats">
             <div class="stat" data-reveal>
-              <dt>Automated tests on every change</dt>
-              <dd class="stat-num"><span data-count-to="111">111</span></dd>
-              <dd class="stat-note">96 unit · 15 end-to-end in real Chromium</dd>
+              <dt>Places it looks on every page</dt>
+              <dd class="stat-num"><span data-count-to="7">7</span></dd>
+              <dd class="stat-note">Bundles, lazy chunks, source maps, HTML, CSS, storage, cookies</dd>
             </div>
             <div class="stat" data-reveal>
               <dt>Popular libraries scanned for noise</dt>
@@ -738,23 +730,18 @@
             <div class="dl-logo" aria-hidden="true">
               <svg viewBox="0 0 128 128"><use href="#eye" /></svg>
             </div>
-            <p class="dl-name">Watcher <span data-version>v0.2.0</span></p>
-            <p class="dl-meta" data-release-date>Chrome, Edge, Brave, Opera, Arc · Chromium 116+</p>
-            <a
-              class="btn btn-solid btn-lg btn-block"
-              data-magnetic
-              data-download
-              href="https://github.com/ATHARVASAIL/Watcher/releases/latest/download/watcher.zip"
-            >
+            <p class="dl-name">Watcher <span class="ver">v0.2.0</span></p>
+            <p class="dl-meta">Chrome, Edge, Brave, Opera, Arc · Chromium 116+</p>
+            <a class="btn btn-solid btn-lg btn-block" data-magnetic href="watcher.zip" download>
               <span class="btn-inner"
                 ><svg aria-hidden="true"><use href="#i-download" /></svg
                 ><span>Download watcher.zip</span></span
               >
             </a>
             <div class="verify">
-              <span class="verify-label">Verify the download</span>
-              <code id="verifyCmd">sha256sum -c watcher.zip.sha256</code>
-              <button type="button" data-copy="#verifyCmd">Copy</button>
+              <span class="verify-label">SHA-256 of watcher.zip</span>
+              <code id="sha256">881131b93e5aed6cfed3cae202fc6375cf014adf8d20c4dcf8e3668dd6f3e826</code>
+              <button type="button" data-copy="#sha256">Copy</button>
             </div>
           </aside>
         </div>
@@ -823,12 +810,7 @@
         <div class="final" data-reveal>
           <h2 class="final-title"><span class="thin">Look before</span> they do.</h2>
           <div class="cta-row">
-            <a
-              class="btn btn-solid btn-lg"
-              data-magnetic
-              data-download
-              href="https://github.com/ATHARVASAIL/Watcher/releases/latest/download/watcher.zip"
-            >
+            <a class="btn btn-solid btn-lg" data-magnetic href="watcher.zip" download>
               <span class="btn-inner"
                 ><svg aria-hidden="true"><use href="#i-download" /></svg
                 ><span>Download for Chrome</span></span
@@ -854,7 +836,6 @@
           </a>
           <nav class="foot-links" aria-label="Footer">
             <a href="https://github.com/ATHARVASAIL/Watcher" rel="noopener">GitHub</a>
-            <a href="https://github.com/ATHARVASAIL/Watcher/releases" rel="noopener">Releases</a>
             <a href="https://github.com/ATHARVASAIL/Watcher/blob/main/PRIVACY.md" rel="noopener">Privacy</a>
             <a href="https://github.com/ATHARVASAIL/Watcher/blob/main/SECURITY.md" rel="noopener">Security</a>
             <a href="https://github.com/ATHARVASAIL/Watcher/blob/main/LICENSE" rel="noopener">MIT License</a>

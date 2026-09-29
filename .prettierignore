@@ -1,7 +1,0 @@
-node_modules/
-dist/
-coverage/
-package-lock.json
-test-site/**/*.map
-docs/rules.md
-*.png

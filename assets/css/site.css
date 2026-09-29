@@ -62,17 +62,6 @@
     url('../fonts/carlito-latin-700-normal.woff2') format('woff2');
 }
 @font-face {
-  font-family: 'Watcher Sans';
-  font-style: italic;
-  font-weight: 700;
-  font-display: swap;
-  src:
-    local('Calibri Bold Italic'),
-    local('Calibri-BoldItalic'),
-    local('Carlito Bold Italic'),
-    url('../fonts/carlito-latin-700-italic.woff2') format('woff2');
-}
-@font-face {
   font-family: 'Watcher Mono';
   font-style: normal;
   font-weight: 400;
@@ -323,7 +312,7 @@ kbd {
   white-space: nowrap;
 }
 
-.kicker [data-version] {
+.kicker .ver {
   letter-spacing: 0.14em;
   text-transform: none;
 }
@@ -524,28 +513,6 @@ kbd {
 .nav-gh > svg {
   width: 18px;
   height: 18px;
-}
-
-.stars {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgb(243 239 230 / 0.08);
-  color: var(--fg);
-  font-size: 0.9rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.stars svg {
-  width: 12px;
-  height: 12px;
-  color: var(--heat-2);
-}
-
-.stars[hidden] {
-  display: none;
 }
 
 /* ---------------------------------------------------------------- buttons */
@@ -2359,7 +2326,7 @@ button[data-copy]:hover {
   letter-spacing: -0.035em;
 }
 
-.dl-name [data-version] {
+.dl-name .ver {
   color: var(--muted);
   font-style: italic;
   font-weight: 300;

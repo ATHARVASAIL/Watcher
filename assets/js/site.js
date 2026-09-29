@@ -1,13 +1,12 @@
 /**
- * Watcher website: motion, micro-interactions, copy buttons and the latest release from GitHub.
+ * Watcher website: motion, micro-interactions and copy buttons.
  *
  * Everything here is progressive. Without JavaScript, or with reduced motion, the page is complete
- * and static. Data from the GitHub API is validated and only ever written with textContent / href.
+ * and static. The page makes no network requests of its own.
  */
 (() => {
   'use strict';
 
-  const REPO = 'ATHARVASAIL/Watcher';
   const root = document.documentElement;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
@@ -306,61 +305,4 @@
 
   for (const el of document.querySelectorAll('[data-year]'))
     el.textContent = String(new Date().getFullYear());
-
-  /* ------------------------------------------------------------------ GitHub: latest release and stars */
-
-  const TAG_RE = /^v?\d+\.\d+\.\d+$/;
-  const DOWNLOAD_RE =
-    /^https:\/\/github\.com\/ATHARVASAIL\/Watcher\/releases\/download\/[\w.-]+\/watcher\.zip$/i;
-  const API_OPTIONS = {
-    headers: { Accept: 'application/vnd.github+json' },
-    referrerPolicy: 'no-referrer',
-    credentials: 'omit',
-  };
-  const getJSON = (path) =>
-    fetch(`https://api.github.com/repos/${REPO}${path}`, API_OPTIONS)
-      .then((res) => (res.ok ? res.json() : null))
-      .catch(() => null);
-
-  getJSON('/releases/latest').then((release) => {
-    if (!release || typeof release.tag_name !== 'string' || !TAG_RE.test(release.tag_name)) return;
-    const version = release.tag_name.startsWith('v') ? release.tag_name : `v${release.tag_name}`;
-    for (const el of document.querySelectorAll('[data-version]')) el.textContent = version;
-
-    const asset = Array.isArray(release.assets)
-      ? release.assets.find((a) => a && a.name === 'watcher.zip')
-      : null;
-    if (
-      asset &&
-      typeof asset.browser_download_url === 'string' &&
-      DOWNLOAD_RE.test(asset.browser_download_url)
-    ) {
-      for (const link of document.querySelectorAll('a[data-download]'))
-        link.href = asset.browser_download_url;
-    }
-
-    const published = Date.parse(release.published_at);
-    if (Number.isFinite(published)) {
-      const date = new Date(published).toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      });
-      for (const el of document.querySelectorAll('[data-release-date]')) {
-        el.textContent = `Released ${date} · Chrome, Edge, Brave, Opera, Arc · Chromium 116+`;
-      }
-    }
-  });
-
-  const stars = document.querySelector('[data-stars]');
-  const starsCount = document.querySelector('[data-stars-count]');
-  if (stars && starsCount) {
-    getJSON('').then((repo) => {
-      const n = repo && Number.isSafeInteger(repo.stargazers_count) ? repo.stargazers_count : -1;
-      if (n < 10) return; // a tiny number is not social proof; keep the plain GitHub link
-      starsCount.textContent = n >= 1000 ? `${(n / 1000).toFixed(n >= 10000 ? 0 : 1)}k` : String(n);
-      stars.title = `${n} stars on GitHub`;
-      stars.hidden = false;
-    });
-  }
 })();

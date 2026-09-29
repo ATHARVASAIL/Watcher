@@ -4,7 +4,7 @@ This project is a security tool, so its own security matters. Thank you for help
 
 ## Supported versions
 
-Only the latest release receives security fixes.
+Only the latest version (the `main` branch) receives security fixes.
 
 ## Reporting a vulnerability
 
@@ -27,7 +27,7 @@ In scope:
 - The scanned page being able to read, alter or forge scan results, or to trigger scans.
 - The extension modifying the scanned page (DOM, storage, cookies) or its behaviour.
 - Secrets persisted to disk (results are memory-only; triage state is salted hashes).
-- Permission or manifest weakening, supply-chain issues in the build/release pipeline.
+- Permission or manifest weakening, or a published `watcher.zip` that differs from `extension/`.
 
 Out of scope (please open a normal issue instead):
 
@@ -36,6 +36,5 @@ Out of scope (please open a normal issue instead):
 
 ## Design safeguards
 
-See [docs/architecture.md](docs/architecture.md#threat-model) for the threat model and the
-controls that enforce it (strict extension CSP with Trusted Types, isolated-world scanning,
-DOM built only via `textContent`, manifest policy checks in CI).
+A strict extension CSP with Trusted Types, isolated-world scanning, a popup whose DOM is built
+only with `textContent`, and the minimum permissions (`activeTab`, `scripting`, `storage`).
