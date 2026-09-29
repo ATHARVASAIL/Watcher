@@ -62,7 +62,7 @@ jobs:
       - name: Build extension package
         run: npm run build
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: watcher
           path: dist/
