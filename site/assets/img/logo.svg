@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Watcher logo">
+  <defs>
+    <linearGradient id="w-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e1b4b"/>
+      <stop offset="1" stop-color="#0b57b8"/>
+    </linearGradient>
+    <radialGradient id="w-iris" cx="0.38" cy="0.32" r="0.8">
+      <stop offset="0" stop-color="#a5f3fc"/>
+      <stop offset="0.45" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#0e7490"/>
+    </radialGradient>
+    <clipPath id="w-eye">
+      <path d="M12 64 C 34 28, 94 28, 116 64 C 94 100, 34 100, 12 64 Z"/>
+    </clipPath>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#w-bg)"/>
+  <path d="M12 64 C 34 28, 94 28, 116 64 C 94 100, 34 100, 12 64 Z" fill="#f8fafc"/>
+  <g clip-path="url(#w-eye)">
+    <circle cx="64" cy="64" r="24" fill="url(#w-iris)"/>
+    <circle cx="64" cy="57.5" r="8" fill="#0f172a"/>
+    <path d="M59.2 61 H68.8 L71.5 78 H56.5 Z" fill="#0f172a"/>
+    <circle cx="55" cy="52" r="3.6" fill="#ffffff" opacity="0.9"/>
+  </g>
+</svg>

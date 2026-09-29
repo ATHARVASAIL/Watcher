@@ -69,6 +69,11 @@ export default [
       globals: { ...globals.serviceworker, ...globals.webextensions },
     },
   },
+  // Project website (classic browser scripts).
+  {
+    files: ['site/**/*.js'],
+    languageOptions: { ecmaVersion: 2024, sourceType: 'script', globals: globals.browser },
+  },
   // Fixture site (runs in the browser).
   {
     files: ['test-site/**/*.js'],

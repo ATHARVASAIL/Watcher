@@ -19,7 +19,7 @@
 
 ### Find the API keys, tokens and passwords your web app shipped to the browser, before someone else does.
 
-[**Install**](#-install) · [**Features**](#-features) · [**How it works**](#-how-it-works) · [**Security**](#-security--privacy) · [**Contribute**](CONTRIBUTING.md)
+[**Website**](https://atharvasail.github.io/watcher/) · [**Install**](#-install) · [**Features**](#-features) · [**How it works**](#-how-it-works) · [**Security**](#-security--privacy) · [**Contribute**](CONTRIBUTING.md)
 
 <br />
 
@@ -96,7 +96,7 @@
 
 ## 🚀 Install
 
-1. Download **`watcher-vX.Y.Z.zip`** from the [latest release](https://github.com/atharvasail/watcher/releases/latest) and unzip it.
+1. Download **`watcher.zip`** from the [website](https://atharvasail.github.io/watcher/) or the [latest release](https://github.com/atharvasail/watcher/releases/latest) and unzip it.
 2. Open `chrome://extensions` and switch on **Developer mode**.
 3. Click **Load unpacked** and select the unzipped folder.
 4. Pin Watcher to the toolbar. Shortcut: <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>.
@@ -220,11 +220,12 @@ npm run verify   # lint · format · manifest + contrast gates · rules docs · 
 | Command                  | What it does                                                            |
 | ------------------------ | ----------------------------------------------------------------------- |
 | `npm run serve`          | Fixture site with planted fake secrets at <http://localhost:8765>       |
+| `npm run site`           | Preview the project website at <http://localhost:4173>                  |
 | `npm run lint`           | ESLint, including `no-unsanitized` (blocks `innerHTML`-style sinks)     |
 | `npm test`               | Rule, export and tooling tests (`node:test`)                            |
 | `npm run test:e2e`       | Loads the extension in real Chromium and scans the fixture (Playwright) |
 | `npm run check:manifest` | Fails on new permissions, weaker CSP or missing files                   |
-| `npm run check:contrast` | WCAG AA contrast for the popup in light and dark themes                 |
+| `npm run check:contrast` | WCAG AA contrast for the popup (light and dark) and the website         |
 | `npm run docs:rules`     | Regenerates [docs/rules.md](docs/rules.md) from the rule definitions    |
 | `npm run fp-baseline`    | Measures false positives against real library code                      |
 | `npm run build`          | Reproducible `dist/watcher-v<version>.zip` + `.sha256`                  |
@@ -253,6 +254,18 @@ test-site/  fixture app with planted fake secrets (strict CSP)
 ```
 
 </details>
+
+### 🌐 Website
+
+The download site lives in [`site/`](site/): plain HTML, CSS and JavaScript with no frameworks,
+no trackers and a strict Content Security Policy. It is set in Calibri; visitors without Calibri get
+[Carlito](https://github.com/googlefonts/carlito), a metric-identical open font the site hosts itself.
+Motion (cursor-tracking eye, scroll story, magnetic buttons) switches off under reduced-motion. Its download buttons point at
+`releases/latest/download/watcher.zip`, so they always serve the newest release.
+
+- **GitHub Pages:** in the repository settings, set **Pages → Source** to **GitHub Actions**. The
+  `Website` workflow publishes `site/` on every push that changes it.
+- **Netlify / Cloudflare Pages:** deploy the `site/` folder as-is; `site/_headers` adds security headers.
 
 Releasing: bump the version in `package.json` and `extension/manifest.json`, update
 [CHANGELOG.md](CHANGELOG.md), then push a `vX.Y.Z` tag. The release workflow tests, builds,

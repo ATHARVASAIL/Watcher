@@ -263,7 +263,7 @@ describe('extension end-to-end', () => {
         ).length,
         canary: document.body.textContent.includes("onerror=alert('popup-xss')"),
       }));
-      assert.deepEqual(dom, { images: 1, scripts: 3, handlers: 0, canary: true }, JSON.stringify(dom));
+      assert.deepEqual(dom, { images: 0, scripts: 3, handlers: 0, canary: true }, JSON.stringify(dom));
       assert.deepEqual(popup.errors, [], popup.errors.join('\n'));
     });
 

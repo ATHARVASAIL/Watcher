@@ -18,6 +18,7 @@
   },
   "scripts": {
     "serve": "node test-site/serve.mjs",
+    "site": "node scripts/serve-site.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

@@ -10,6 +10,12 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
+- **Redesigned popup**: gradient header with an animated eye, a live scanning view, severity tiles
+  that count up, staggered finding cards, an all-clear state; all motion respects reduced-motion.
+- **Project website** in `site/`: Calibri typography (self-hosted Carlito fallback), cursor-tracking
+  hero eye, scroll-driven story, bento feature grid, magnetic buttons, strict CSP, fully responsive
+  and reduced-motion aware, with a GitHub Pages workflow; release assets now include a stable
+  `watcher.zip` for its download links.
 - **Source-map exposure check**: referenced `.map` files are fetched (same origin); a reachable map
   is reported as confirmed exposure and its original sources are scanned (library paths skipped).
 - **JS-readable cookies**: cookies visible to `document.cookie` are scanned; session-like cookies

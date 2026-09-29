@@ -14,7 +14,8 @@ npm run verify                    # everything CI runs
 ```
 
 Load `extension/` unpacked in `chrome://extensions` (Developer mode) and use
-`npm run serve` for the fixture site at <http://localhost:8765>.
+`npm run serve` for the fixture site at <http://localhost:8765>. `npm run site` previews the project
+website from `site/` at <http://localhost:4173>.
 
 ## Scripts
 
@@ -25,7 +26,7 @@ Load `extension/` unpacked in `chrome://extensions` (Developer mode) and use
 | `npm test`               | Rule, export and tooling tests (`node:test`)                            |
 | `npm run test:e2e`       | Loads the extension in Chromium and scans the fixture site (Playwright) |
 | `npm run check:manifest` | Manifest security policy (permissions, CSP, referenced files)           |
-| `npm run check:contrast` | WCAG AA contrast of the popup in light and dark themes                  |
+| `npm run check:contrast` | WCAG AA contrast of the popup (light and dark) and the website          |
 | `npm run docs:rules`     | Regenerates `docs/rules.md` (CI checks it is current)                   |
 | `npm run fp-baseline`    | Scans `node_modules` to measure false positives on real library code    |
 | `npm run build`          | Reproducible `dist/*.zip` + `.sha256`; refuses to build on policy fail  |

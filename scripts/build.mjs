@@ -36,10 +36,14 @@ const zip = createZip(entries, Number.isFinite(epoch) && epoch > 0 ? new Date(ep
 const { version } = readManifest();
 const outDir = fileURLToPath(new URL('dist/', ROOT));
 mkdirSync(outDir, { recursive: true });
-const file = `watcher-v${version}.zip`;
-writeFileSync(join(outDir, file), zip);
 const sha = createHash('sha256').update(zip).digest('hex');
-writeFileSync(join(outDir, `${file}.sha256`), `${sha}  ${file}\n`);
+// Versioned asset for the changelog, plus a stable name so
+// https://github.com/<owner>/watcher/releases/latest/download/watcher.zip always works (used by the website).
+for (const file of [`watcher-v${version}.zip`, 'watcher.zip']) {
+  writeFileSync(join(outDir, file), zip);
+  writeFileSync(join(outDir, `${file}.sha256`), `${sha}  ${file}\n`);
+}
 console.log(
-  `✓ dist/${file}  (${entries.length} files, ${(zip.length / 1024).toFixed(1)} KB)\n  sha256 ${sha}`,
+  `✓ dist/watcher-v${version}.zip + dist/watcher.zip  (${entries.length} files, ${(zip.length / 1024).toFixed(1)} KB)`,
 );
+console.log(`  sha256 ${sha}`);

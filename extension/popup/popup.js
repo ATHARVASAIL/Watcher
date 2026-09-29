@@ -23,6 +23,11 @@ const ui = {
   clearBtn: $('clearBtn'),
   status: $('status'),
   progress: $('progress'),
+  intro: $('intro'),
+  scanning: $('scanning'),
+  scanCount: $('scanCount'),
+  scanCurrent: $('scanCurrent'),
+  allClear: $('allClear'),
   summary: $('summary'),
   results: $('results'),
   optionInputs: [...document.querySelectorAll('input[data-opt]')],
@@ -39,7 +44,10 @@ const state = {
   groups: [],
   accepted: new Map(), // fingerprint → accepted-at
   renderedScanId: null,
+  countedScanId: null, // scan whose severity counts have already animated in
 };
+
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const storageKey = () => `${STORAGE.scanPrefix}${state.tab.id}`;
 const stripHash = (url) => url.split('#')[0];
@@ -218,13 +226,16 @@ function matchesQuery(group, query) {
 
 function renderResultsList() {
   clear(ui.results);
-  if (!state.groups.length) {
-    ui.results.append(h('p', { class: 'empty', text: 'No exposed secrets found in the scanned sources.' }));
-    return;
-  }
+  ui.allClear.hidden = state.groups.length > 0;
+  if (!state.groups.length) return;
+
   const open = state.groups.filter((g) => state.showAccepted || !state.accepted.has(g.fp));
   const visible = open.filter((g) => state.filters.has(g.severity) && matchesQuery(g, state.query));
-  for (const g of visible) ui.results.append(buildCard(g));
+  visible.forEach((g, i) => {
+    const card = buildCard(g);
+    card.style.setProperty('--i', String(Math.min(i, 10))); // staggered entrance (CSSOM, not markup)
+    ui.results.append(card);
+  });
 
   const hidden = open.length - visible.length;
   if (!visible.length) {
@@ -284,7 +295,32 @@ function renderResultView() {
       .flat()
       .filter(Boolean),
   );
+  if (state.countedScanId !== state.renderedScanId) {
+    state.countedScanId = state.renderedScanId;
+    countUp(ui.summary.querySelectorAll('.tile-count[data-count]'));
+  }
   renderResultsList();
+}
+
+/** Animate severity counts from 0 (skipped when the user prefers reduced motion). */
+function countUp(nodes) {
+  if (reducedMotion.matches) return;
+  const start = performance.now();
+  const DURATION = 550;
+  const targets = [...nodes].map((node) => ({ node, to: Number(node.dataset.count) || 0 }));
+  const step = (now) => {
+    const t = Math.min(1, (now - start) / DURATION);
+    const eased = 1 - (1 - t) ** 3;
+    for (const { node, to } of targets) node.textContent = String(Math.round(to * eased));
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function showPanels({ intro = false, scanning = false, allClear = false } = {}) {
+  ui.intro.hidden = !intro;
+  ui.scanning.hidden = !scanning;
+  ui.allClear.hidden = !allClear;
 }
 
 let renderToken = 0;
@@ -314,9 +350,10 @@ async function render() {
   ui.exportBtn.disabled = rec?.state !== 'done';
   if (ui.exportBtn.disabled) setMenuOpen(false);
   ui.clearBtn.disabled = !rec || running;
-  ui.progress.hidden = !running;
+  document.body.dataset.state = restricted ? 'restricted' : running ? 'running' : rec?.state || 'idle';
 
   if (restricted) {
+    showPanels();
     setStatus(
       state.tab.url
         ? 'This page cannot be scanned (browser-internal page or Web Store).'
@@ -332,14 +369,19 @@ async function render() {
     clear(ui.summary);
     clear(ui.results);
     state.renderedScanId = null;
-    if (!rec) setStatus('Press Scan to check this page. Nothing runs until you do.');
+    showPanels({ intro: !rec, scanning: running });
+    if (!rec) setStatus('');
     else if (rec.state === 'error') setStatus(rec.error || 'Scan failed.', 'error');
-    else if (running && rec.total) {
-      ui.progress.value = rec.done / rec.total;
-      setStatus(`Scanning ${rec.done}/${rec.total}${rec.current ? ` — ${rec.current}` : ''}`);
-    } else if (running) {
-      ui.progress.removeAttribute('value'); // indeterminate until the first progress update
-      setStatus('Scanning…');
+    else if (running) {
+      setStatus('');
+      if (rec.total) {
+        ui.progress.value = rec.done / rec.total;
+        ui.scanCount.textContent = `Scanning ${rec.done} / ${rec.total} sources`;
+      } else {
+        ui.progress.removeAttribute('value'); // indeterminate until the first progress update
+        ui.scanCount.textContent = 'Starting…';
+      }
+      ui.scanCurrent.textContent = rec.current || '';
     } else {
       setStatus(
         'The last scan did not finish (the page may have navigated or reloaded). Scan again.',
@@ -349,6 +391,7 @@ async function render() {
     return;
   }
 
+  showPanels();
   renderResultView();
 }
 

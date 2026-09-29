@@ -14,22 +14,22 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 /* ------------------------------------------------------------ summary */
 
-function severityChips(counts, filters, onToggle) {
+function severityTiles(counts, filters, onToggle) {
   return h(
     'div',
-    { class: 'chips', role: 'group', 'aria-label': 'Filter by severity' },
+    { class: 'tiles', role: 'group', 'aria-label': 'Filter by severity' },
     SEVERITIES.map((sev) =>
       h(
         'button',
         {
-          class: `chip sev-${sev}`,
+          class: `tile sev-${sev}`,
           type: 'button',
           'aria-pressed': String(filters.has(sev)),
           title: `${filters.has(sev) ? 'Hide' : 'Show'} ${SEVERITY_LABELS[sev].toLowerCase()} findings`,
           on: { click: () => onToggle(sev) },
         },
-        h('span', { class: 'chip-count', text: counts[sev] }),
-        h('span', { text: SEVERITY_LABELS[sev] }),
+        h('span', { class: 'tile-count', 'data-count': counts[sev], text: counts[sev] }),
+        h('span', { class: 'tile-label', text: SEVERITY_LABELS[sev] }),
       ),
     ),
   );
@@ -112,7 +112,7 @@ export function renderSummary(result, view, handlers) {
   }
 
   return [
-    severityChips(view.counts, view.filters, handlers.onToggleSeverity),
+    severityTiles(view.counts, view.filters, handlers.onToggleSeverity),
     h('div', { class: 'toolbar' }, search, acceptedToggle),
     h(
       'p',
@@ -185,7 +185,10 @@ export function renderCard(group, { revealed, accepted, onReveal, onCopy, onAcce
     h(
       'div',
       { class: 'value-row' },
-      h('code', { class: 'value', text: revealed || !secret ? f.value : f.display }),
+      h('code', {
+        class: `value${revealed ? ' is-revealed' : ''}`,
+        text: revealed || !secret ? f.value : f.display,
+      }),
       secret
         ? h('button', {
             class: 'mini',

@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src https://api.github.com; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>Watcher · See what your frontend gave away</title>
+    <meta
+      name="description"
+      content="Watcher is a free, open-source Chrome extension that finds API keys, tokens and passwords your web app shipped to the browser. Runs locally, reads only, sends nothing."
+    />
+    <meta name="theme-color" content="#06080f" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Watcher · See what your frontend gave away" />
+    <meta
+      property="og:description"
+      content="Find the secrets your web app shipped to the browser, before someone else does. Free, open source, 100% local."
+    />
+    <meta property="og:image" content="assets/img/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="assets/img/logo.svg" type="image/svg+xml" />
+    <link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png" />
+    <link
+      rel="preload"
+      href="assets/fonts/carlito-latin-700-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="assets/fonts/carlito-latin-400-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="stylesheet" href="assets/css/site.css" />
+    <script src="assets/js/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <!-- Icon sprite. Static markup only. -->
+    <svg class="sprite" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="g-bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#1e1b4b" />
+          <stop offset="1" stop-color="#0b57b8" />
+        </linearGradient>
+        <radialGradient id="g-iris" cx="0.38" cy="0.32" r="0.8">
+          <stop offset="0" stop-color="#a5f3fc" />
+          <stop offset="0.45" stop-color="#22d3ee" />
+          <stop offset="1" stop-color="#0e7490" />
+        </radialGradient>
+        <clipPath id="c-eye"><path d="M12 64 C 34 28, 94 28, 116 64 C 94 100, 34 100, 12 64 Z" /></clipPath>
+        <symbol id="eye" viewBox="0 0 128 128">
+          <rect width="128" height="128" rx="28" fill="url(#g-bg)" />
+          <path d="M12 64 C 34 28, 94 28, 116 64 C 94 100, 34 100, 12 64 Z" fill="#f8fafc" />
+          <g clip-path="url(#c-eye)">
+            <circle cx="64" cy="64" r="24" fill="url(#g-iris)" />
+            <circle cx="64" cy="57.5" r="8" fill="#0f172a" />
+            <path d="M59.2 61 H68.8 L71.5 78 H56.5 Z" fill="#0f172a" />
+            <circle cx="55" cy="52" r="3.6" fill="#ffffff" opacity="0.9" />
+          </g>
+        </symbol>
+        <symbol
+          id="i-download"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 3v12m0 0-5-5m5 5 5-5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+        </symbol>
+        <symbol id="i-github" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a10.9 10.9 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"
+          />
+        </symbol>
+        <symbol
+          id="i-arrow"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M7 17 17 7M8 7h9v9" />
+        </symbol>
+        <symbol
+          id="i-check"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </symbol>
+        <symbol id="i-star" viewBox="0 0 24 24" fill="currentColor">
+          <path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9z" />
+        </symbol>
+      </defs>
+    </svg>
+
+    <!-- Atmosphere: fixed, decorative, behind everything. -->
+    <div class="atmos" aria-hidden="true">
+      <span class="orb orb-a"></span>
+      <span class="orb orb-b"></span>
+      <span class="orb orb-c"></span>
+      <span class="gridlines"></span>
+      <span class="grain"></span>
+    </div>
+
+    <header class="nav" data-nav>
+      <div class="nav-pill">
+        <a class="brand" href="#top" aria-label="Watcher, back to top">
+          <svg viewBox="0 0 128 128" aria-hidden="true"><use href="#eye" /></svg>
+          <span>Watcher</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#story">Why</a>
+          <a href="#features">Features</a>
+          <a href="#security">Security</a>
+          <a href="#install">Install</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+        <a class="nav-gh" href="https://github.com/atharvasail/watcher" rel="noopener">
+          <svg aria-hidden="true"><use href="#i-github" /></svg>
+          <span class="nav-gh-label">GitHub</span>
+          <span class="stars" data-stars hidden
+            ><svg aria-hidden="true"><use href="#i-star" /></svg><span data-stars-count></span
+          ></span>
+        </a>
+        <a
+          class="btn btn-solid btn-sm"
+          aria-label="Download Watcher for Chrome"
+          data-magnetic
+          data-download
+          href="https://github.com/atharvasail/watcher/releases/latest/download/watcher.zip"
+        >
+          <span class="btn-inner"
+            ><svg aria-hidden="true"><use href="#i-download" /></svg><span>Download</span></span
+          >
+        </a>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ================================================================ hero -->
+      <section class="hero" id="top" data-hero>
+        <div class="shell hero-grid">
+          <div class="hero-copy">
+            <p class="kicker ld d1">
+              <span class="pulse" aria-hidden="true"></span>
+              <span><span class="hide-sm">Open-source </span>Chrome extension</span>
+              <span class="kicker-ver"
+                ><span class="sep" aria-hidden="true">/</span> <span data-version>v0.2.0</span></span
+              >
+            </p>
+            <h1 class="display">
+              <span class="line line-lead"><span class="load-line d2 thin">See what your</span></span>
+              <span class="line"><span class="load-line d3">frontend</span></span>
+              <span class="line"><span class="load-line d4 heat">gave away.</span></span>
+            </h1>
+            <p class="lead ld d6">
+              Watcher reads the JavaScript, source maps, HTML, CSS, storage and cookies your web app ships to
+              the browser, and flags the API keys, tokens and passwords that should never have left your
+              server.
+            </p>
+            <div class="cta-row ld d7">
+              <a
+                class="btn btn-solid btn-lg"
+                data-magnetic
+                data-download
+                href="https://github.com/atharvasail/watcher/releases/latest/download/watcher.zip"
+              >
+                <span class="btn-inner"
+                  ><svg aria-hidden="true"><use href="#i-download" /></svg
+                  ><span>Download for Chrome</span></span
+                >
+              </a>
+              <a
+                class="btn btn-ghost btn-lg"
+                data-magnetic
+                href="https://github.com/atharvasail/watcher"
+                rel="noopener"
+              >
+                <span class="btn-inner"
+                  ><svg aria-hidden="true"><use href="#i-github" /></svg><span>Read the source</span></span
+                >
+              </a>
+            </div>
+            <ul class="hero-meta ld d8" aria-label="At a glance">
+              <li>
+                <svg aria-hidden="true"><use href="#i-check" /></svg>MIT licensed
+              </li>
+              <li>
+                <svg aria-hidden="true"><use href="#i-check" /></svg>100% local
+              </li>
+              <li>
+                <svg aria-hidden="true"><use href="#i-check" /></svg>No account
+              </li>
+              <li>
+                <svg aria-hidden="true"><use href="#i-check" /></svg>70 KB download
+              </li>
+            </ul>
+          </div>
+
+          <div class="stage" aria-hidden="true">
+            <span class="ring r1"></span>
+            <span class="ring r2"></span>
+            <span class="ring r3"></span>
+            <span class="sweep"></span>
+            <svg class="big-eye" viewBox="0 0 480 300" data-eye>
+              <defs>
+                <radialGradient id="g-big-iris" cx="0.4" cy="0.34" r="0.78">
+                  <stop offset="0" stop-color="#d6fbff" />
+                  <stop offset="0.38" stop-color="#5ce1f0" />
+                  <stop offset="0.74" stop-color="#138aa2" />
+                  <stop offset="1" stop-color="#083847" />
+                </radialGradient>
+                <linearGradient id="g-sclera" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#141b2b" />
+                  <stop offset="1" stop-color="#070a12" />
+                </linearGradient>
+                <clipPath id="c-big">
+                  <path d="M24 150 C 112 34, 368 34, 456 150 C 368 266, 112 266, 24 150 Z" />
+                </clipPath>
+              </defs>
+              <g class="lid">
+                <path
+                  class="almond"
+                  d="M24 150 C 112 34, 368 34, 456 150 C 368 266, 112 266, 24 150 Z"
+                  fill="url(#g-sclera)"
+                />
+                <g clip-path="url(#c-big)">
+                  <g transform="translate(240 150)">
+                    <g data-iris>
+                      <circle r="84" fill="url(#g-big-iris)" />
+                      <circle
+                        r="64"
+                        fill="none"
+                        stroke="#062a36"
+                        stroke-opacity="0.45"
+                        stroke-width="26"
+                        stroke-dasharray="1.4 5"
+                      />
+                      <circle r="46" fill="none" stroke="#e9fdff" stroke-opacity="0.18" stroke-width="1" />
+                      <circle r="32" fill="#03050a" />
+                      <circle cx="-28" cy="-30" r="10" fill="#ffffff" opacity="0.92" />
+                      <circle cx="22" cy="24" r="4" fill="#ffffff" opacity="0.5" />
+                    </g>
+                  </g>
+                </g>
+                <path
+                  d="M24 150 C 112 34, 368 34, 456 150 C 368 266, 112 266, 24 150 Z"
+                  fill="none"
+                  stroke="#f3efe6"
+                  stroke-width="3"
+                />
+              </g>
+            </svg>
+
+            <div class="chip-wrap cw-1" data-depth="26">
+              <div class="chip sev-crit">
+                <b>Critical</b><code>live-secret-key</code><span>sk_live_••••4f9Q</span>
+              </div>
+            </div>
+            <div class="chip-wrap cw-2" data-depth="-18">
+              <div class="chip sev-high">
+                <b>High</b><code>aws-access-key-id</code><span>AKIA••••7QXM</span>
+              </div>
+            </div>
+            <div class="chip-wrap cw-3" data-depth="14">
+              <div class="chip sev-low">
+                <b>Low</b><code>source-map-exposed</code><span>app.js.map · 200</span>
+              </div>
+            </div>
+            <div class="chip-wrap cw-4" data-depth="-30">
+              <div class="chip sev-info">
+                <b>Info</b><code>publishable-key</code><span>pk_live_••••</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <a class="scroll-cue ld d9" href="#story"
+          ><span class="cue-line" aria-hidden="true"></span>Look closer</a
+        >
+      </section>
+
+      <!-- ================================================================ ticker -->
+      <section class="ticker" aria-label="Some of the services Watcher recognises">
+        <div class="ticker-row">
+          <ul class="ticker-track">
+            <li>AWS</li>
+            <li>Stripe</li>
+            <li>GitHub</li>
+            <li>OpenAI</li>
+            <li>Firebase</li>
+            <li>Slack</li>
+            <li>Azure</li>
+            <li>Shopify</li>
+            <li>SendGrid</li>
+            <li>Anthropic</li>
+            <li>DigitalOcean</li>
+            <li>Hugging Face</li>
+            <li>Twilio</li>
+            <li>npm</li>
+          </ul>
+          <ul class="ticker-track" aria-hidden="true">
+            <li>AWS</li>
+            <li>Stripe</li>
+            <li>GitHub</li>
+            <li>OpenAI</li>
+            <li>Firebase</li>
+            <li>Slack</li>
+            <li>Azure</li>
+            <li>Shopify</li>
+            <li>SendGrid</li>
+            <li>Anthropic</li>
+            <li>DigitalOcean</li>
+            <li>Hugging Face</li>
+            <li>Twilio</li>
+            <li>npm</li>
+          </ul>
+        </div>
+        <div class="ticker-row reverse" aria-hidden="true">
+          <ul class="ticker-track mono">
+            <li class="sev-crit">private-key</li>
+            <li class="sev-high">slack-webhook</li>
+            <li class="sev-crit">github-token</li>
+            <li class="sev-med">jwt</li>
+            <li class="sev-crit">stripe-webhook-secret</li>
+            <li class="sev-high">credentials-in-url</li>
+            <li class="sev-low">internal-url</li>
+            <li class="sev-crit">gitlab-token</li>
+            <li class="sev-med">generic-secret-assignment</li>
+            <li class="sev-high">sentry-auth-token</li>
+            <li class="sev-low">cookie-not-httponly</li>
+            <li class="sev-info">publishable-key</li>
+          </ul>
+          <ul class="ticker-track mono">
+            <li class="sev-crit">private-key</li>
+            <li class="sev-high">slack-webhook</li>
+            <li class="sev-crit">github-token</li>
+            <li class="sev-med">jwt</li>
+            <li class="sev-crit">stripe-webhook-secret</li>
+            <li class="sev-high">credentials-in-url</li>
+            <li class="sev-low">internal-url</li>
+            <li class="sev-crit">gitlab-token</li>
+            <li class="sev-med">generic-secret-assignment</li>
+            <li class="sev-high">sentry-auth-token</li>
+            <li class="sev-low">cookie-not-httponly</li>
+            <li class="sev-info">publishable-key</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================================================================ story -->
+      <section class="story" id="story">
+        <div class="shell">
+          <header class="section-head" data-reveal>
+            <p class="kicker">Why it matters</p>
+            <h2 class="h2">Your build ships <span class="thin">more than</span> code.</h2>
+          </header>
+
+          <div class="story-grid">
+            <div class="story-visual" data-story-visual data-active="1">
+              <div class="devtools">
+                <div class="dt-bar">
+                  <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+                  <span class="dt-tab t1">Sources</span>
+                  <span class="dt-tab t2">Source map</span>
+                  <span class="dt-tab t3">Application</span>
+                </div>
+                <div class="dt-body">
+                  <div class="dt-pane p1">
+                    <p class="dt-file">dist/assets/index-8f3a.js</p>
+                    <ol class="code">
+                      <li><span class="kw">const</span> env = {</li>
+                      <li>&nbsp;&nbsp;VITE_API_URL: <span class="str">"https://api.acme.io"</span>,</li>
+                      <li class="hit sev-crit">
+                        &nbsp;&nbsp;VITE_STRIPE_KEY: <span class="str">"sk_live_••••••••4f9Q"</span>,
+                      </li>
+                      <li>&nbsp;&nbsp;VITE_DEBUG: <span class="kw">true</span></li>
+                      <li>};</li>
+                    </ol>
+                    <p class="dt-flag sev-crit"><b>Critical</b> live-secret-key · line 3</p>
+                  </div>
+                  <div class="dt-pane p2">
+                    <p class="dt-file">index-8f3a.js.map <span class="ok">200 OK</span></p>
+                    <ul class="tree">
+                      <li>webpack://acme/</li>
+                      <li class="in">src/</li>
+                      <li class="in2">App.tsx</li>
+                      <li class="in2 hit sev-high">config.ts</li>
+                      <li class="in2">api/client.ts</li>
+                    </ul>
+                    <p class="dt-flag sev-high"><b>High</b> aws-access-key-id · config.ts:12</p>
+                  </div>
+                  <div class="dt-pane p3">
+                    <p class="dt-file">Local storage · https://app.acme.io</p>
+                    <div class="table" role="presentation">
+                      <span class="th">Key</span><span class="th">Value</span> <span>theme</span
+                      ><span>dark</span> <span class="hit sev-crit">auth_token</span
+                      ><span class="hit sev-crit">eyJhbGciOi••••</span> <span>locale</span><span>en-GB</span>
+                    </div>
+                    <p class="dt-flag sev-crit"><b>Critical</b> jwt: service_role · localStorage</p>
+                  </div>
+                </div>
+              </div>
+              <div class="story-progress" aria-hidden="true"><span data-story-progress></span></div>
+            </div>
+
+            <ol class="story-steps">
+              <li class="step" data-step="1">
+                <span class="step-no">01</span>
+                <h3>Env vars get inlined.</h3>
+                <p>
+                  Anything prefixed <code>VITE_</code>, <code>NEXT_PUBLIC_</code> or
+                  <code>REACT_APP_</code> is pasted into your bundle at build time. Put a secret there once
+                  and it ships to every visitor.
+                </p>
+              </li>
+              <li class="step" data-step="2">
+                <span class="step-no">02</span>
+                <h3>Source maps publish your source.</h3>
+                <p>
+                  A forgotten <code>.map</code> file hands out your original code, comments and config files
+                  included. Watcher follows the map and scans what is inside it.
+                </p>
+              </li>
+              <li class="step" data-step="3">
+                <span class="step-no">03</span>
+                <h3>Tokens sit in plain sight.</h3>
+                <p>
+                  Session tokens in <code>localStorage</code>, cookies without <code>HttpOnly</code>, a
+                  password prefilled in a form. Any script on the page can read them. So can Watcher.
+                </p>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================ features -->
+      <section class="features" id="features">
+        <div class="shell">
+          <header class="section-head split" data-reveal>
+            <div>
+              <p class="kicker">What you get</p>
+              <h2 class="h2">Rated by evidence, <span class="thin">not by keyword.</span></h2>
+            </div>
+            <p class="lead">
+              A key's format tells you what it can do. Watcher validates each match, decodes JWTs to read
+              their role, and puts every finding on the scale it has earned.
+            </p>
+          </header>
+
+          <div class="bento">
+            <article class="card c-ladder" data-spot data-reveal>
+              <h3>Five levels. <span class="thin">Every red line matters.</span></h3>
+              <ol class="ladder">
+                <li class="sev-crit">
+                  <b>Critical</b><code>sk_live_ · private-key · service_role</code><span class="bar"></span>
+                </li>
+                <li class="sev-high">
+                  <b>High</b><code>aws-access-key-id · slack-webhook</code><span class="bar"></span>
+                </li>
+                <li class="sev-med">
+                  <b>Medium</b><code>generic-secret-assignment · jwt</code><span class="bar"></span>
+                </li>
+                <li class="sev-low">
+                  <b>Low</b><code>internal-url · source-map-exposed</code><span class="bar"></span>
+                </li>
+                <li class="sev-info">
+                  <b>Info</b><code>pk_live_ · jwt: anon</code><span class="bar"></span>
+                </li>
+              </ol>
+              <p class="card-note">
+                A Stripe <code>pk_live_</code> key belongs in your frontend. An <code>sk_live_</code> key does
+                not. Watcher knows the difference.
+              </p>
+            </article>
+
+            <article class="card c-count" data-spot data-reveal>
+              <p class="mega" aria-hidden="true">55</p>
+              <h3><span class="sr-only">55 </span>detection rules</h3>
+              <p>Vendor key formats, generic secrets, infrastructure leaks and debug leftovers.</p>
+              <ul class="tags" aria-label="Places it looks">
+                <li>JS bundles</li>
+                <li>Lazy chunks</li>
+                <li>Source maps</li>
+                <li>HTML</li>
+                <li>CSS</li>
+                <li>Storage</li>
+                <li>Cookies</li>
+              </ul>
+            </article>
+
+            <article class="card c-mask" data-spot data-reveal tabindex="0">
+              <h3>Masked <span class="thin">until you reveal.</span></h3>
+              <p>Values and the code around them stay hidden, so reviewing on a shared screen is safe.</p>
+              <div class="finding">
+                <b class="pill sev-crit">Critical</b>
+                <code class="rule">live-secret-key</code>
+                <span class="value">
+                  <span class="v-masked">sk_live_••••••••••4f9Q</span>
+                  <span class="v-shown" aria-hidden="true">sk_live_NOT_A_REAL_KEY</span>
+                </span>
+              </div>
+              <p class="hint">Hover or focus to reveal</p>
+            </article>
+
+            <article class="card c-maps" data-spot data-reveal>
+              <h3>Follows <span class="thin">source maps.</span></h3>
+              <ol class="chain">
+                <li>app.3f2a.js</li>
+                <li>app.js.map</li>
+                <li class="hit">src/config.ts</li>
+              </ol>
+              <p>Lazily loaded chunks too, even the ones no longer in the page's HTML.</p>
+            </article>
+
+            <article class="card c-export" data-spot data-reveal>
+              <h3>Reports <span class="thin">that travel.</span></h3>
+              <div class="files" aria-hidden="true">
+                <span class="file f-md">.md</span>
+                <span class="file f-json">.json</span>
+                <span class="file f-sarif">.sarif</span>
+              </div>
+              <p>JSON, Markdown, or SARIF 2.1.0 straight into GitHub code scanning.</p>
+            </article>
+
+            <article class="card c-triage" data-spot data-reveal>
+              <h3>Accept <span class="thin">what you've checked.</span></h3>
+              <p class="hash" aria-hidden="true">
+                <span>sha256(salt + value)</span><span class="to">→</span
+                ><span class="digest">9f2c…e41a</span>
+              </p>
+              <p>Reviewed findings stay hidden per site. Only a salted hash is stored, never the value.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================ security -->
+      <section class="vault" id="security">
+        <div class="shell">
+          <div class="vault-head" data-reveal>
+            <p class="kicker">Security model</p>
+            <h2 class="vault-title">
+              <span class="zero" aria-hidden="true">0</span>
+              <span class="vault-words"
+                ><span class="sr-only">Zero </span>bytes leave <span>your browser.</span></span
+              >
+            </h2>
+            <p class="lead">
+              A security tool you don't have to trust blindly. Every guarantee below is enforced in code and
+              checked on every build.
+            </p>
+          </div>
+
+          <ul class="guards">
+            <li data-reveal>
+              <span class="g-no">01</span>
+              <h3>Local only</h3>
+              <p>The extension's own pages are forbidden from making network requests at all.</p>
+              <code>connect-src 'none'</code>
+            </li>
+            <li data-reveal class="rd1">
+              <span class="g-no">02</span>
+              <h3>Read-only</h3>
+              <p>No writes to the page, its storage or cookies. Tests assert zero DOM changes per scan.</p>
+              <code>0 mutations · CI-checked</code>
+            </li>
+            <li data-reveal class="rd2">
+              <span class="g-no">03</span>
+              <h3>XSS-safe popup</h3>
+              <p>Page content renders as text only. Any HTML injection throws before it can render.</p>
+              <code>require-trusted-types-for 'script'</code>
+            </li>
+            <li data-reveal>
+              <span class="g-no">04</span>
+              <h3>Minimal permissions</h3>
+              <p>No host permissions, no always-on scripts. Watcher runs only on the tab you choose.</p>
+              <code>activeTab · scripting · storage</code>
+            </li>
+            <li data-reveal class="rd1">
+              <span class="g-no">05</span>
+              <h3>No secrets on disk</h3>
+              <p>Results live in memory and vanish with the tab. Accepted items are salted hashes.</p>
+              <code>storage.session · SHA-256</code>
+            </li>
+            <li data-reveal class="rd2">
+              <span class="g-no">06</span>
+              <h3>Verifiable builds</h3>
+              <p>Reproducible zips with checksums and signed build provenance on every release.</p>
+              <code>sha256 · attestation</code>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================================================================ proof -->
+      <section class="proof" aria-labelledby="proof-title">
+        <div class="shell">
+          <h2 id="proof-title" class="sr-only">By the numbers</h2>
+          <dl class="stats">
+            <div class="stat" data-reveal>
+              <dt>Automated tests on every change</dt>
+              <dd class="stat-num"><span data-count-to="111">111</span></dd>
+              <dd class="stat-note">96 unit · 15 end-to-end in real Chromium</dd>
+            </div>
+            <div class="stat" data-reveal>
+              <dt>Popular libraries scanned for noise</dt>
+              <dd class="stat-num">
+                <span data-count-to="77.7" data-decimals="1">77.7</span><small>MB</small>
+              </dd>
+              <dd class="stat-note">Only 4 low-severity hits in the false-positive baseline</dd>
+            </div>
+            <div class="stat" data-reveal>
+              <dt>Runtime dependencies</dt>
+              <dd class="stat-num"><span>0</span></dd>
+              <dd class="stat-note">Nothing to audit but the source</dd>
+            </div>
+            <div class="stat" data-reveal>
+              <dt>Browser permissions</dt>
+              <dd class="stat-num"><span data-count-to="3">3</span></dd>
+              <dd class="stat-note">No host access, no background scanning</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- ================================================================ how -->
+      <section class="showcase" id="how">
+        <div class="shell">
+          <header class="section-head" data-reveal>
+            <p class="kicker">In practice</p>
+            <h2 class="h2">From click to report <span class="thin">in seconds.</span></h2>
+          </header>
+
+          <div class="show-grid">
+            <figure class="browser" data-reveal>
+              <div class="browser-bar" aria-hidden="true">
+                <span class="dots"><i></i><i></i><i></i></span>
+                <span class="url">app.acme.io</span>
+              </div>
+              <img
+                src="assets/img/demo.gif"
+                width="900"
+                height="600"
+                alt="Animated walkthrough: starting a scan, reviewing findings, revealing a value, filtering and exporting"
+                loading="lazy"
+                decoding="async"
+              />
+            </figure>
+            <figure class="popup-shot" data-parallax>
+              <img
+                src="assets/img/popup-dark.png"
+                width="460"
+                height="900"
+                alt="The Watcher popup listing findings by severity with masked values"
+                loading="lazy"
+                decoding="async"
+              />
+            </figure>
+          </div>
+
+          <ol class="flow">
+            <li data-reveal>
+              <span class="flow-no">01</span>
+              <h3>Open</h3>
+              <p>Click the eye, or press <kbd>Alt</kbd> <kbd>Shift</kbd> <kbd>S</kbd>, on your own app.</p>
+            </li>
+            <li data-reveal class="rd1">
+              <span class="flow-no">02</span>
+              <h3>Scan</h3>
+              <p>Watcher re-reads the page's own files from the browser cache in an isolated sandbox.</p>
+            </li>
+            <li data-reveal class="rd2">
+              <span class="flow-no">03</span>
+              <h3>Review</h3>
+              <p>Filter by severity or text, reveal a value, and jump to the exact file, line and column.</p>
+            </li>
+            <li data-reveal class="rd3">
+              <span class="flow-no">04</span>
+              <h3>Fix</h3>
+              <p>Rotate what's real, export the report, and scan again to confirm it's gone.</p>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ================================================================ install -->
+      <section class="install" id="install">
+        <div class="shell install-grid">
+          <div class="install-copy" data-reveal>
+            <p class="kicker">Install</p>
+            <h2 class="h2">Ready in <span class="thin">under a minute.</span></h2>
+            <ol class="install-steps">
+              <li>
+                <span class="i-no">01</span>
+                <div><strong>Download</strong> the zip and unzip it anywhere you like.</div>
+              </li>
+              <li>
+                <span class="i-no">02</span>
+                <div>
+                  <strong>Open the extensions page</strong> and switch on Developer mode.
+                  <div class="copy-row">
+                    <code id="extUrl">chrome://extensions</code>
+                    <button type="button" data-copy="#extUrl">Copy</button>
+                  </div>
+                </div>
+              </li>
+              <li>
+                <span class="i-no">03</span>
+                <div>
+                  <strong>Load unpacked</strong> and choose the unzipped folder. Pin the eye to your toolbar.
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <aside class="dl-card" data-reveal aria-label="Download">
+            <div class="dl-logo" aria-hidden="true">
+              <svg viewBox="0 0 128 128"><use href="#eye" /></svg>
+            </div>
+            <p class="dl-name">Watcher <span data-version>v0.2.0</span></p>
+            <p class="dl-meta" data-release-date>Chrome, Edge, Brave, Opera, Arc · Chromium 116+</p>
+            <a
+              class="btn btn-solid btn-lg btn-block"
+              data-magnetic
+              data-download
+              href="https://github.com/atharvasail/watcher/releases/latest/download/watcher.zip"
+            >
+              <span class="btn-inner"
+                ><svg aria-hidden="true"><use href="#i-download" /></svg
+                ><span>Download watcher.zip</span></span
+              >
+            </a>
+            <div class="verify">
+              <span class="verify-label">Verify the download</span>
+              <code id="verifyCmd">sha256sum -c watcher.zip.sha256</code>
+              <button type="button" data-copy="#verifyCmd">Copy</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ================================================================ faq -->
+      <section class="faq" id="faq">
+        <div class="shell faq-grid">
+          <header class="faq-head" data-reveal>
+            <p class="kicker">FAQ</p>
+            <h2 class="h2">Questions, <span class="thin">answered.</span></h2>
+            <p class="faq-more">
+              Something else?
+              <a href="https://github.com/atharvasail/watcher/issues" rel="noopener">Open an issue</a>
+            </p>
+          </header>
+          <div class="faq-list">
+            <details data-reveal>
+              <summary>Is it safe to run on a production site?</summary>
+              <p>
+                Yes. Watcher only reads. It never changes the page, its storage or its cookies, it runs only
+                when you press Scan, and it re-reads your own files from the browser cache where it can.
+              </p>
+            </details>
+            <details data-reveal>
+              <summary>Does it send my code or findings anywhere?</summary>
+              <p>
+                No. There is no server, analytics or telemetry. The extension's pages are blocked from making
+                network requests by their own security policy, and exports are saved only where you choose.
+              </p>
+            </details>
+            <details data-reveal>
+              <summary>Can I scan sites I don't own?</summary>
+              <p>
+                Only with permission. Watcher is built for developers and testers checking applications they
+                own or are authorised to assess, such as their own staging and production builds.
+              </p>
+            </details>
+            <details data-reveal>
+              <summary>How is this different from gitleaks or trufflehog?</summary>
+              <p>
+                Those scan your repository. Watcher scans what actually reached the browser: values your
+                bundler inlined at build time, source maps you published by accident, and tokens your app
+                stores at runtime. Use both.
+              </p>
+            </details>
+            <details data-reveal>
+              <summary>Will it find every secret?</summary>
+              <p>
+                No scanner can promise that. Vendor-format matches are reliable; keyword and entropy matches
+                are marked "needs review". Treat anything Critical or High as compromised and rotate it.
+              </p>
+            </details>
+            <details data-reveal>
+              <summary>Which browsers does it work in?</summary>
+              <p>Chrome, Edge, Brave, Opera, Arc and other Chromium browsers from version 116.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ================================================================ footer -->
+    <footer class="footer">
+      <div class="shell">
+        <div class="final" data-reveal>
+          <h2 class="final-title"><span class="thin">Look before</span> they do.</h2>
+          <div class="cta-row">
+            <a
+              class="btn btn-solid btn-lg"
+              data-magnetic
+              data-download
+              href="https://github.com/atharvasail/watcher/releases/latest/download/watcher.zip"
+            >
+              <span class="btn-inner"
+                ><svg aria-hidden="true"><use href="#i-download" /></svg
+                ><span>Download for Chrome</span></span
+              >
+            </a>
+            <a
+              class="btn btn-ghost btn-lg"
+              data-magnetic
+              href="https://github.com/atharvasail/watcher"
+              rel="noopener"
+            >
+              <span class="btn-inner"
+                ><span>Star on GitHub</span><svg aria-hidden="true"><use href="#i-arrow" /></svg
+              ></span>
+            </a>
+          </div>
+        </div>
+
+        <div class="foot-row">
+          <a class="brand" href="#top" aria-label="Watcher, back to top">
+            <svg viewBox="0 0 128 128" aria-hidden="true"><use href="#eye" /></svg>
+            <span>Watcher</span>
+          </a>
+          <nav class="foot-links" aria-label="Footer">
+            <a href="https://github.com/atharvasail/watcher" rel="noopener">GitHub</a>
+            <a href="https://github.com/atharvasail/watcher/releases" rel="noopener">Releases</a>
+            <a href="https://github.com/atharvasail/watcher/blob/main/PRIVACY.md" rel="noopener">Privacy</a>
+            <a href="https://github.com/atharvasail/watcher/blob/main/SECURITY.md" rel="noopener">Security</a>
+            <a href="https://github.com/atharvasail/watcher/blob/main/LICENSE" rel="noopener">MIT License</a>
+          </nav>
+          <p class="legal">
+            © <span data-year>2026</span> Atharva Sail. Only scan applications you own or are authorised to
+            test.
+          </p>
+        </div>
+      </div>
+      <p class="wordmark" aria-hidden="true">Watcher</p>
+    </footer>
+  </body>
+</html>

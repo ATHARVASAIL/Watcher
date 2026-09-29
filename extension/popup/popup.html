@@ -9,61 +9,135 @@
     <script src="../shared/triage.js"></script>
     <script type="module" src="popup.js"></script>
   </head>
-  <body>
-    <header class="top">
-      <img class="logo" src="../icons/icon32.png" alt="" width="24" height="24" />
-      <div class="top-text">
-        <h1>Watcher</h1>
-        <p id="target" class="target">—</p>
+  <body data-state="idle">
+    <!-- Reusable vector eye (static markup; nothing here is generated from page content). -->
+    <svg class="sprite" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="g-bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#1e1b4b" />
+          <stop offset="1" stop-color="#0b57b8" />
+        </linearGradient>
+        <radialGradient id="g-iris" cx="0.38" cy="0.32" r="0.8">
+          <stop offset="0" stop-color="#a5f3fc" />
+          <stop offset="0.45" stop-color="#22d3ee" />
+          <stop offset="1" stop-color="#0e7490" />
+        </radialGradient>
+        <clipPath id="c-eye">
+          <path d="M12 64 C 34 28, 94 28, 116 64 C 94 100, 34 100, 12 64 Z" />
+        </clipPath>
+        <symbol id="eye" viewBox="0 0 128 128">
+          <rect width="128" height="128" rx="28" fill="url(#g-bg)" />
+          <g class="lids">
+            <path d="M12 64 C 34 28, 94 28, 116 64 C 94 100, 34 100, 12 64 Z" fill="#f8fafc" />
+            <g clip-path="url(#c-eye)">
+              <g class="iris">
+                <circle cx="64" cy="64" r="24" fill="url(#g-iris)" />
+                <circle cx="64" cy="57.5" r="8" fill="#0f172a" />
+                <path d="M59.2 61 H68.8 L71.5 78 H56.5 Z" fill="#0f172a" />
+                <circle cx="55" cy="52" r="3.6" fill="#ffffff" opacity="0.9" />
+              </g>
+            </g>
+          </g>
+        </symbol>
+      </defs>
+    </svg>
+
+    <header class="hero">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 128 128" aria-hidden="true"><use href="#eye" /></svg>
+        <div class="brand-text">
+          <h1>Watcher</h1>
+          <p id="target" class="target">—</p>
+        </div>
+        <span id="version" class="version"></span>
       </div>
-      <span id="version" class="version"></span>
+
+      <div class="actions" role="group" aria-label="Actions">
+        <button id="scanBtn" class="primary" type="button">Scan this page</button>
+        <div class="menu-wrap">
+          <button
+            id="exportBtn"
+            class="ghost"
+            type="button"
+            aria-haspopup="menu"
+            aria-expanded="false"
+            aria-controls="exportMenu"
+            disabled
+          >
+            Export ▾
+          </button>
+          <div id="exportMenu" class="menu" role="menu" hidden>
+            <button type="button" role="menuitem" data-format="json">JSON report</button>
+            <button type="button" role="menuitem" data-format="sarif">SARIF 2.1 (code scanning)</button>
+            <button type="button" role="menuitem" data-format="md">Markdown report</button>
+          </div>
+        </div>
+        <button id="clearBtn" class="ghost" type="button" disabled>Clear</button>
+      </div>
     </header>
 
-    <section class="actions" aria-label="Actions">
-      <button id="scanBtn" class="primary" type="button">Scan this page</button>
-      <div class="menu-wrap">
-        <button
-          id="exportBtn"
-          type="button"
-          aria-haspopup="menu"
-          aria-expanded="false"
-          aria-controls="exportMenu"
-          disabled
-        >
-          Export ▾
-        </button>
-        <div id="exportMenu" class="menu" role="menu" hidden>
-          <button type="button" role="menuitem" data-format="json">JSON report</button>
-          <button type="button" role="menuitem" data-format="sarif">SARIF 2.1 (code scanning)</button>
-          <button type="button" role="menuitem" data-format="md">Markdown report</button>
+    <main class="content">
+      <details id="optionsPanel" class="options">
+        <summary>Scan options</summary>
+        <div class="opt-grid">
+          <label><input type="checkbox" data-opt="inlineScripts" /> Inline scripts</label>
+          <label><input type="checkbox" data-opt="externalScripts" /> Linked JS files &amp; chunks</label>
+          <label><input type="checkbox" data-opt="sourceMaps" /> Check source maps</label>
+          <label><input type="checkbox" data-opt="stylesheets" /> CSS (inline &amp; linked)</label>
+          <label><input type="checkbox" data-opt="html" /> HTML attributes &amp; comments</label>
+          <label><input type="checkbox" data-opt="storage" /> localStorage / sessionStorage</label>
+          <label><input type="checkbox" data-opt="cookies" /> JS-readable cookies</label>
+          <label><input type="checkbox" data-opt="includeCrossOrigin" /> Include third-party files</label>
+          <label class="span-2"
+            ><input type="checkbox" data-opt="exportRaw" /> Put unmasked values in exports</label
+          >
         </div>
-      </div>
-      <button id="clearBtn" type="button" disabled>Clear</button>
-    </section>
+      </details>
 
-    <details id="optionsPanel" class="options">
-      <summary>Scan options</summary>
-      <div class="opt-grid">
-        <label><input type="checkbox" data-opt="inlineScripts" /> Inline scripts</label>
-        <label><input type="checkbox" data-opt="externalScripts" /> Linked JS files &amp; chunks</label>
-        <label><input type="checkbox" data-opt="sourceMaps" /> Check source maps</label>
-        <label><input type="checkbox" data-opt="stylesheets" /> CSS (inline &amp; linked)</label>
-        <label><input type="checkbox" data-opt="html" /> HTML attributes &amp; comments</label>
-        <label><input type="checkbox" data-opt="storage" /> localStorage / sessionStorage</label>
-        <label><input type="checkbox" data-opt="cookies" /> JS-readable cookies</label>
-        <label><input type="checkbox" data-opt="includeCrossOrigin" /> Include third-party files</label>
-        <label class="span-2"
-          ><input type="checkbox" data-opt="exportRaw" /> Put unmasked values in exports</label
-        >
-      </div>
-    </details>
+      <div id="status" class="status" role="status" aria-live="polite"></div>
 
-    <div id="status" class="status" role="status" aria-live="polite"></div>
-    <progress id="progress" max="1" value="0" hidden></progress>
+      <section id="intro" class="panel intro" hidden>
+        <svg class="intro-eye" viewBox="0 0 128 128" aria-hidden="true"><use href="#eye" /></svg>
+        <h2>Ready when you are</h2>
+        <p>Watcher reads what this page already sent to your browser and looks for secrets.</p>
+        <ul class="pills" aria-label="What gets scanned">
+          <li>JS bundles</li>
+          <li>Source maps</li>
+          <li>HTML</li>
+          <li>CSS</li>
+          <li>Storage</li>
+          <li>Cookies</li>
+        </ul>
+      </section>
 
-    <section id="summary" class="summary" aria-label="Scan summary"></section>
-    <section id="results" class="results" aria-label="Findings"></section>
+      <section id="scanning" class="panel scanning" hidden aria-label="Scan in progress">
+        <div class="radar" aria-hidden="true">
+          <span class="line w80"></span>
+          <span class="line w55"></span>
+          <span class="line w70 hit"></span>
+          <span class="line w40"></span>
+          <span class="line w65"></span>
+          <span class="beam"></span>
+        </div>
+        <div class="scan-meta">
+          <strong id="scanCount">Starting…</strong>
+          <span id="scanCurrent" class="dim"></span>
+        </div>
+        <progress id="progress" max="1" value="0"></progress>
+      </section>
 
-    <footer class="foot">Runs locally in this tab. Nothing is sent to any server.</footer>
+      <section id="allClear" class="panel all-clear" hidden>
+        <svg class="intro-eye" viewBox="0 0 128 128" aria-hidden="true"><use href="#eye" /></svg>
+        <h2>All clear</h2>
+        <p>No exposed secrets in the sources Watcher could read.</p>
+      </section>
+
+      <section id="summary" class="summary" aria-label="Scan summary"></section>
+      <section id="results" class="results" aria-label="Findings"></section>
+    </main>
+
+    <footer class="foot">
+      <span aria-hidden="true">🔒</span> Runs locally · nothing leaves your browser
+    </footer>
   </body>
 </html>
