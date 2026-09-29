@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" width="1280" height="420" role="img" aria-label="Watcher: sees the secrets your frontend gave away">
+<title>Watcher</title>
+<style>
+  .sans { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
+  .eye { transform-box: fill-box; transform-origin: center; animation: blink 6s ease-in-out infinite; }
+  .iris { animation: look 9s ease-in-out infinite; }
+  .glow { transform-box: fill-box; transform-origin: center; animation: pulse 5s ease-in-out infinite; }
+  .scanline { animation: scan 4.5s linear infinite; }
+  .hitA { animation: hitA 4.5s linear infinite; }
+  .hitB { animation: hitB 4.5s linear infinite; }
+  .hitC { animation: hitC 4.5s linear infinite; }
+  .cursor { animation: caret 1s steps(1) infinite; }
+  @keyframes blink { 0%, 88%, 100% { transform: scaleY(1); } 91% { transform: scaleY(0.08); } 94% { transform: scaleY(1); } }
+  @keyframes look { 0%, 18% { transform: translate(0, 0); } 28%, 46% { transform: translate(6px, 1px); } 58%, 76% { transform: translate(-6px, 0); } 88%, 100% { transform: translate(0, 0); } }
+  @keyframes pulse { 0%, 100% { opacity: 0.65; transform: scale(1); } 50% { opacity: 1; transform: scale(1.08); } }
+  @keyframes scan { 0% { transform: translateY(0); opacity: 0; } 6% { opacity: 1; } 86% { opacity: 1; } 100% { transform: translateY(236px); opacity: 0; } }
+  @keyframes hitA { 0%, 26% { opacity: 0; } 30%, 90% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes hitB { 0%, 40% { opacity: 0; } 44%, 90% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes hitC { 0%, 82% { opacity: 0; } 85%, 92% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes caret { 0% { opacity: 1; } 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) {
+    .eye, .iris, .glow, .scanline, .cursor { animation: none; }
+    .hitA, .hitB, .hitC { animation: none; opacity: 1; }
+  }
+</style>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset="1" stop-color="#e0e7ff"/></linearGradient>
+  <linearGradient id="title" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0f172a"/><stop offset="1" stop-color="#0b57b8"/></linearGradient>
+  <radialGradient id="glow"><stop offset="0" stop-color="#38bdf8" stop-opacity="0.28"/><stop offset="1" stop-color="#38bdf8" stop-opacity="0"/></radialGradient>
+  <linearGradient id="scan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0284c7" stop-opacity="0"/><stop offset="0.85" stop-color="#0284c7" stop-opacity="0.22"/><stop offset="1" stop-color="#0284c7" stop-opacity="0.85"/></linearGradient>
+  <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#1e3a8a" stroke-opacity="0.05"/></pattern>
+  <linearGradient id="lg-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e1b4b"/><stop offset="1" stop-color="#0b57b8"/></linearGradient>
+  <radialGradient id="lg-iris" cx="0.38" cy="0.32" r="0.8"><stop offset="0" stop-color="#a5f3fc"/><stop offset="0.45" stop-color="#22d3ee"/><stop offset="1" stop-color="#0e7490"/></radialGradient>
+  <clipPath id="lg-eye"><path d="M12 64 C 34 28, 94 28, 116 64 C 94 100, 34 100, 12 64 Z"/></clipPath>
+  <clipPath id="codeclip"><rect x="661" y="98" width="568" height="258"/></clipPath>
+</defs>
+<rect width="1280" height="420" rx="24" fill="url(#bg)"/>
+<rect width="1280" height="420" rx="24" fill="url(#grid)"/>
+<ellipse class="glow" cx="160" cy="170" rx="210" ry="170" fill="url(#glow)"/>
+
+  <g transform="translate(70 92) scale(1.1)">
+    <rect width="128" height="128" rx="28" fill="url(#lg-bg)"/>
+    <g class="eye">
+      <path d="M12 64 C 34 28, 94 28, 116 64 C 94 100, 34 100, 12 64 Z" fill="#f8fafc"/>
+      <g clip-path="url(#lg-eye)">
+        <g class="iris">
+          <circle cx="64" cy="64" r="24" fill="url(#lg-iris)"/>
+          <circle cx="64" cy="57.5" r="8" fill="#0f172a"/>
+          <path d="M59.2 61 H68.8 L71.5 78 H56.5 Z" fill="#0f172a"/>
+          <circle cx="55" cy="52" r="3.6" fill="#ffffff" opacity="0.9"/>
+        </g>
+      </g>
+    </g>
+  </g>
+<text x="240" y="178" class="sans" font-size="84" font-weight="800" letter-spacing="-0.02em" fill="url(#title)">Watcher</text>
+<text x="244" y="216" class="sans" font-size="21" font-weight="500" fill="#475569">Frontend secrets auditor for Chrome</text>
+<text x="70" y="288" class="sans" font-size="22" font-weight="600" fill="#1e293b">Sees the secrets your frontend gave away.<tspan class="cursor" fill="#0b57b8">▍</tspan></text>
+<rect x="70" y="318" width="132" height="34" rx="17" fill="#ffffff" stroke="#c7d2fe"/><text x="136.0" y="340" text-anchor="middle" class="sans" font-size="15" font-weight="600" fill="#1e3a8a">Manifest V3</text><rect x="212" y="318" width="122" height="34" rx="17" fill="#ffffff" stroke="#c7d2fe"/><text x="273.0" y="340" text-anchor="middle" class="sans" font-size="15" font-weight="600" fill="#1e3a8a">100% local</text><rect x="344" y="318" width="112" height="34" rx="17" fill="#ffffff" stroke="#c7d2fe"/><text x="400.0" y="340" text-anchor="middle" class="sans" font-size="15" font-weight="600" fill="#1e3a8a">Read-only</text><rect x="466" y="318" width="100" height="34" rx="17" fill="#ffffff" stroke="#c7d2fe"/><text x="516.0" y="340" text-anchor="middle" class="sans" font-size="15" font-weight="600" fill="#1e3a8a">55 rules</text>
+<g>
+  <rect x="660" y="56" width="570" height="302" rx="16" fill="#ffffff" stroke="#cbd5e1"/>
+  <path d="M660 98 V72 a16 16 0 0 1 16 -16 H1214 a16 16 0 0 1 16 16 V98 Z" fill="#f1f5f9"/>
+  <circle cx="686" cy="77" r="6" fill="#f87171"/><circle cx="706" cy="77" r="6" fill="#fbbf24"/><circle cx="726" cy="77" r="6" fill="#4ade80"/>
+  <text x="945" y="82" text-anchor="middle" class="mono" font-size="14" fill="#64748b">static/js/app.3f2a.js</text>
+  <g clip-path="url(#codeclip)">
+    <g class="hitA"><rect x="676" y="158" width="542" height="30" rx="6" fill="#15803d" fill-opacity="0.12" stroke="#15803d" stroke-opacity="0.55"/><rect x="1158" y="163" width="48" height="20" rx="10" fill="#15803d"/><text x="1182.0" y="177.5" text-anchor="middle" class="sans" font-size="11.5" font-weight="800" letter-spacing="0.06em" fill="#ffffff">LOW</text></g><g class="hitB"><rect x="676" y="192" width="542" height="30" rx="6" fill="#dc2626" fill-opacity="0.12" stroke="#dc2626" stroke-opacity="0.55"/><rect x="1122" y="197" width="84" height="20" rx="10" fill="#dc2626"/><text x="1164.0" y="211.5" text-anchor="middle" class="sans" font-size="11.5" font-weight="800" letter-spacing="0.06em" fill="#ffffff">CRITICAL</text></g><g class="hitC"><rect x="676" y="294" width="542" height="30" rx="6" fill="#475569" fill-opacity="0.12" stroke="#475569" stroke-opacity="0.55"/><rect x="1088" y="299" width="118" height="20" rx="10" fill="#475569"/><text x="1147.0" y="313.5" text-anchor="middle" class="sans" font-size="11.5" font-weight="800" letter-spacing="0.06em" fill="#ffffff">MAP EXPOSED</text></g>
+    <text x="690" y="146" class="mono" font-size="17" fill="#334155" xml:space="preserve"><tspan fill="#7c3aed">const</tspan> config = {</text>
+<text x="690" y="180" class="mono" font-size="17" fill="#334155" xml:space="preserve">  <tspan fill="#0f172a">api</tspan>: <tspan fill="#047857">"https://api.staging.acme.io"</tspan>,</text>
+<text x="690" y="214" class="mono" font-size="17" fill="#334155" xml:space="preserve">  <tspan fill="#0f172a">stripeKey</tspan>: <tspan fill="#047857">"sk_live_••••••4f9Q"</tspan>,</text>
+<text x="690" y="248" class="mono" font-size="17" fill="#334155" xml:space="preserve">  <tspan fill="#0f172a">debug</tspan>: <tspan fill="#7c3aed">true</tspan>,</text>
+<text x="690" y="282" class="mono" font-size="17" fill="#334155" xml:space="preserve">};</text>
+<text x="690" y="316" class="mono" font-size="17" fill="#334155" xml:space="preserve"><tspan fill="#64748b">//# sourceMappingURL=app.js.map</tspan></text>
+    <rect class="scanline" x="661" y="70" width="568" height="40" fill="url(#scan)"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 8" width="1200" height="8" preserveAspectRatio="none" role="presentation">
+  <defs>
+    <linearGradient id="d-base" x1="0" x2="1">
+      <stop offset="0" stop-color="#22d3ee" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#0b57b8" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="d-shine" x1="0" x2="1">
+      <stop offset="0" stop-color="#a5f3fc" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#a5f3fc" stop-opacity="0.95"/>
+      <stop offset="1" stop-color="#a5f3fc" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <style>
+    .shine { animation: sweep 3.2s ease-in-out infinite; }
+    @keyframes sweep { 0% { transform: translateX(-260px); } 100% { transform: translateX(1200px); } }
+    @media (prefers-reduced-motion: reduce) { .shine { animation: none; opacity: 0; } }
+  </style>
+  <rect y="3" width="1200" height="2" rx="1" fill="url(#d-base)"/>
+  <rect class="shine" y="2" width="240" height="4" rx="2" fill="url(#d-shine)"/>
+</svg>

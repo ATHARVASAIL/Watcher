@@ -1,0 +1,32 @@
+name: New detection rule
+description: Propose support for a credential format or exposure pattern.
+labels: [detection, enhancement]
+body:
+  - type: input
+    id: provider
+    attributes:
+      label: Provider / pattern name
+      placeholder: Acme API key
+    validations:
+      required: true
+  - type: textarea
+    id: format
+    attributes:
+      label: Format (link to official docs if possible)
+      description: Prefix, length, alphabet, checksum. Use fake examples only.
+    validations:
+      required: true
+  - type: dropdown
+    id: exposure
+    attributes:
+      label: Is this value ever meant to be public (like Stripe pk_ keys)?
+      options:
+        - No, it is always a server-side secret
+        - Yes, there is a public variant (describe how to tell them apart)
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: What can someone do with it, and how is it rotated?

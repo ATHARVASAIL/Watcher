@@ -1,0 +1,16 @@
+{
+  "printWidth": 110,
+  "singleQuote": true,
+  "trailingComma": "all",
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "proseWrap": "preserve",
+        "printWidth": 100
+      }
+    }
+  ]
+}

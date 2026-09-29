@@ -1,0 +1,17 @@
+{
+  "version": 3,
+  "file": "app.js",
+  "sourceRoot": "",
+  "sources": [
+    "webpack://acme-portal/./src/config.ts",
+    "webpack://acme-portal/./node_modules/tiny-lib/index.js",
+    "webpack://acme-portal/webpack/bootstrap"
+  ],
+  "sourcesContent": [
+    "// Original TypeScript recovered from the published source map (all values fake).\n// TODO: remove hardcoded staging admin credentials before release\nexport const STAGING_ADMIN = { user: \"qa-admin\", password: \"Stg-Adm1n!2024\" };\nexport const INTERNAL_API = \"https://api.internal.acme-corp.io/v1\";\nexport const webhookSigningSecret = \"q7Rv2Lk9Zx4Tm8Wp3Nb6Hc1Ys5Df0Ga\";\n",
+    "// Third-party library code: skipped by the scanner (node_modules path).\nexport const defaults = { password: \"LibraryNoise123!\", apiKey: \"lib_9f8e7d6c5b4a3f2e1d0c\" };\n",
+    null
+  ],
+  "names": [],
+  "mappings": ""
+}

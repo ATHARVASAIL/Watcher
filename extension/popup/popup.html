@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Watcher</title>
+    <link rel="stylesheet" href="popup.css" />
+    <script src="../shared/common.js"></script>
+    <script src="../shared/triage.js"></script>
+    <script type="module" src="popup.js"></script>
+  </head>
+  <body>
+    <header class="top">
+      <img class="logo" src="../icons/icon32.png" alt="" width="24" height="24" />
+      <div class="top-text">
+        <h1>Watcher</h1>
+        <p id="target" class="target">—</p>
+      </div>
+      <span id="version" class="version"></span>
+    </header>
+
+    <section class="actions" aria-label="Actions">
+      <button id="scanBtn" class="primary" type="button">Scan this page</button>
+      <div class="menu-wrap">
+        <button
+          id="exportBtn"
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded="false"
+          aria-controls="exportMenu"
+          disabled
+        >
+          Export ▾
+        </button>
+        <div id="exportMenu" class="menu" role="menu" hidden>
+          <button type="button" role="menuitem" data-format="json">JSON report</button>
+          <button type="button" role="menuitem" data-format="sarif">SARIF 2.1 (code scanning)</button>
+          <button type="button" role="menuitem" data-format="md">Markdown report</button>
+        </div>
+      </div>
+      <button id="clearBtn" type="button" disabled>Clear</button>
+    </section>
+
+    <details id="optionsPanel" class="options">
+      <summary>Scan options</summary>
+      <div class="opt-grid">
+        <label><input type="checkbox" data-opt="inlineScripts" /> Inline scripts</label>
+        <label><input type="checkbox" data-opt="externalScripts" /> Linked JS files &amp; chunks</label>
+        <label><input type="checkbox" data-opt="sourceMaps" /> Check source maps</label>
+        <label><input type="checkbox" data-opt="stylesheets" /> CSS (inline &amp; linked)</label>
+        <label><input type="checkbox" data-opt="html" /> HTML attributes &amp; comments</label>
+        <label><input type="checkbox" data-opt="storage" /> localStorage / sessionStorage</label>
+        <label><input type="checkbox" data-opt="cookies" /> JS-readable cookies</label>
+        <label><input type="checkbox" data-opt="includeCrossOrigin" /> Include third-party files</label>
+        <label class="span-2"
+          ><input type="checkbox" data-opt="exportRaw" /> Put unmasked values in exports</label
+        >
+      </div>
+    </details>
+
+    <div id="status" class="status" role="status" aria-live="polite"></div>
+    <progress id="progress" max="1" value="0" hidden></progress>
+
+    <section id="summary" class="summary" aria-label="Scan summary"></section>
+    <section id="results" class="results" aria-label="Findings"></section>
+
+    <footer class="foot">Runs locally in this tab. Nothing is sent to any server.</footer>
+  </body>
+</html>

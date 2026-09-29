@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+# Local test artefacts
+test-results/
+playwright-report/
