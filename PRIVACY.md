@@ -27,7 +27,7 @@ requests at all. The only requests made are the scanned page's own files being r
 from the browser cache) so they can be analysed; third-party files are fetched only if you
 enable that option.
 
-Exports (JSON, SARIF, Markdown) are created locally and saved only where you choose. Values are
+Exports (PDF, JSON, SARIF, Markdown) are created locally and saved only where you choose. Values are
 masked in exports unless you opt in.
 
 ## Contact

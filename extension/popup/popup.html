@@ -66,10 +66,19 @@
           >
             Export ▾
           </button>
-          <div id="exportMenu" class="menu" role="menu" hidden>
-            <button type="button" role="menuitem" data-format="json">JSON report</button>
-            <button type="button" role="menuitem" data-format="sarif">SARIF 2.1 (code scanning)</button>
-            <button type="button" role="menuitem" data-format="md">Markdown report</button>
+          <div id="exportMenu" class="menu" role="menu" aria-label="Export format" hidden>
+            <button type="button" role="menuitem" data-format="pdf">
+              <span class="mi-title">PDF report</span><span class="mi-desc">Formatted, ready to share</span>
+            </button>
+            <button type="button" role="menuitem" data-format="json">
+              <span class="mi-title">JSON</span><span class="mi-desc">Full data for scripts</span>
+            </button>
+            <button type="button" role="menuitem" data-format="sarif">
+              <span class="mi-title">SARIF 2.1</span><span class="mi-desc">GitHub code scanning</span>
+            </button>
+            <button type="button" role="menuitem" data-format="md">
+              <span class="mi-title">Markdown</span><span class="mi-desc">Issues and pull requests</span>
+            </button>
           </div>
         </div>
         <button id="clearBtn" class="ghost" type="button" disabled>Clear</button>
@@ -108,6 +117,9 @@
           <li>Storage</li>
           <li>Cookies</li>
         </ul>
+        <p class="hint">
+          Shortcut <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> · press <kbd>/</kbd> to filter results
+        </p>
       </section>
 
       <section id="scanning" class="panel scanning" hidden aria-label="Scan in progress">

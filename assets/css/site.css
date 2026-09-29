@@ -437,7 +437,7 @@ kbd {
   display: flex;
   align-items: center;
   gap: 6px;
-  max-width: 1120px;
+  max-width: 70rem;
   margin-inline: auto;
   padding: 7px 7px 7px 16px;
   border: 1px solid var(--hairline);
@@ -791,7 +791,7 @@ kbd {
   display: grid;
   place-items: center;
   justify-self: center;
-  width: min(100%, 640px);
+  width: min(100%, 40rem);
   aspect-ratio: 1;
 }
 
@@ -926,7 +926,7 @@ kbd {
   background: var(--sev);
   color: var(--sev-ink);
   font-family: var(--font);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.13em;
   line-height: 1;
@@ -968,7 +968,7 @@ kbd {
   align-items: center;
   gap: 14px;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.26em;
   text-decoration: none;
@@ -1141,6 +1141,10 @@ kbd {
 
 .dt-tab {
   flex: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
   padding: 6px 12px;
   border-radius: 8px;
   color: var(--muted);
@@ -1334,7 +1338,7 @@ kbd {
   background: var(--surface);
   color: var(--muted);
   font-family: var(--font);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1372,14 +1376,14 @@ kbd {
   display: grid;
   align-content: center;
   gap: 16px;
-  min-height: 74vh;
+  min-height: 62vh;
   padding-block: 32px;
   transition: opacity 0.6s var(--ease-out);
 }
 
 .step:first-child {
   align-content: start;
-  min-height: 64vh;
+  min-height: 52vh;
   padding-top: 40px;
 }
 
@@ -1722,7 +1726,7 @@ kbd {
 
 .hint {
   color: var(--muted);
-  font-size: 0.76rem !important;
+  font-size: 0.78rem !important;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -2347,7 +2351,7 @@ button[data-copy]:hover {
   flex-basis: 100%;
   padding-top: 6px;
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -3059,5 +3063,332 @@ button[data-copy]:hover {
   .ticker,
   .wordmark {
     display: none;
+  }
+}
+
+/* ================================================================ responsive refinements */
+
+/* Navigation: mobile menu toggle (hidden on wide screens) and the current-section state. */
+.nav-toggle {
+  display: none;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--hairline-2);
+  border-radius: 50%;
+  background: rgb(243 239 230 / 0.04);
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.nav-toggle span,
+.nav-toggle span::before,
+.nav-toggle span::after {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+  transition:
+    transform 0.35s var(--ease-out),
+    opacity 0.2s;
+}
+
+.nav-toggle span {
+  position: relative;
+}
+
+.nav-toggle span::before,
+.nav-toggle span::after {
+  content: '';
+  position: absolute;
+  left: 0;
+}
+
+.nav-toggle span::before {
+  top: -5px;
+}
+
+.nav-toggle span::after {
+  top: 5px;
+}
+
+.nav.is-open .nav-toggle span {
+  background: transparent;
+}
+
+.nav.is-open .nav-toggle span::before {
+  transform: translateY(5px) rotate(45deg);
+}
+
+.nav.is-open .nav-toggle span::after {
+  transform: translateY(-5px) rotate(-45deg);
+}
+
+.nav-links a[aria-current='true'] {
+  background: rgb(92 225 240 / 0.1);
+  color: var(--fg);
+}
+
+.nav-pill {
+  position: relative;
+}
+
+.brand {
+  min-height: 44px;
+}
+
+.nav-gh {
+  min-height: 44px;
+  justify-content: center;
+}
+
+.btn-sm {
+  min-height: 44px;
+}
+
+button[data-copy] {
+  min-height: 40px;
+  padding-inline: 16px;
+}
+
+.dt-tab:hover {
+  color: var(--fg);
+}
+
+/* Story panes can also be switched directly. */
+.dt-tab:focus-visible {
+  outline-offset: 0;
+}
+
+@media (max-width: 1280px) {
+  .cw-2 {
+    right: -1%;
+  }
+  .cw-3 {
+    left: -3%;
+  }
+}
+
+@media (max-width: 900px) {
+  .c-maps,
+  .c-export {
+    grid-column: span 6;
+  }
+  .c-triage {
+    grid-column: span 12;
+  }
+}
+
+@media (max-width: 860px) {
+  .nav-toggle {
+    display: grid;
+    order: 5;
+    margin-left: 2px;
+  }
+  .nav-gh {
+    margin-left: auto;
+    min-width: 44px;
+  }
+  .nav-links {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    left: 0;
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 8px;
+    border: 1px solid var(--hairline-2);
+    border-radius: 22px;
+    background: var(--surface);
+    box-shadow: 0 24px 60px -20px var(--shadow);
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      opacity 0.3s var(--ease-out),
+      transform 0.3s var(--ease-out),
+      visibility 0s linear 0.3s;
+  }
+  .nav.is-open .nav-links {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    transition-delay: 0s;
+  }
+  .nav-links a {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 16px;
+    border-radius: 14px;
+    font-size: 1.1rem;
+  }
+  .foot-links a {
+    padding-block: 10px;
+  }
+}
+
+@media (max-width: 760px) {
+  .c-maps,
+  .c-export,
+  .c-triage {
+    grid-column: span 12;
+  }
+}
+
+/* The export "files" fan adapts to the width of its own card. */
+.f-md {
+  justify-content: flex-start;
+  padding-left: 12px;
+}
+
+.f-sarif {
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+
+.c-export {
+  container-type: inline-size;
+}
+
+@container (max-width: 250px) {
+  .files {
+    align-items: flex-end;
+    gap: 10px;
+    height: auto;
+  }
+  .file,
+  .f-md,
+  .f-json,
+  .f-sarif,
+  .c-export:hover .f-md,
+  .c-export:hover .f-sarif {
+    position: static;
+    width: min(30%, 86px);
+    height: 96px;
+    justify-content: center;
+    padding-inline: 0;
+    transform: none;
+  }
+  .c-export:hover .f-json {
+    transform: translateY(-8px);
+  }
+}
+
+/* Short, wide viewports: landscape phones, small laptop windows. */
+@media (max-height: 560px) and (orientation: landscape) {
+  .hero {
+    min-height: 0;
+    padding-block: 96px 64px;
+  }
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 24px;
+  }
+  .hero-copy {
+    gap: 16px;
+  }
+  .display {
+    font-size: clamp(2.3rem, 9vh + 2.4vw, 5rem);
+  }
+  .display .line-lead {
+    font-size: 0.5em;
+  }
+  .hero .lead {
+    font-size: 1rem;
+  }
+  .btn-lg {
+    padding: 14px 20px;
+    font-size: 1rem;
+  }
+  .cta-row {
+    width: auto;
+  }
+  .cta-row .btn {
+    flex: 0 1 auto;
+  }
+  .stage {
+    width: min(100%, 72vh);
+  }
+  .cw-2,
+  .cw-4,
+  .scroll-cue {
+    display: none;
+  }
+  .chip code {
+    display: none;
+  }
+  .cw-1 {
+    top: 2%;
+    left: 0;
+  }
+  .cw-3 {
+    right: 0;
+    bottom: 4%;
+    left: auto;
+  }
+
+  /* Not enough height to pin the story visual: show it in flow, switched by its tabs. */
+  .story-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .story-visual {
+    position: relative;
+    top: auto;
+    padding: 0;
+    background: none;
+  }
+  .story-visual::before,
+  .story-visual::after {
+    display: none;
+  }
+  .step,
+  .step:first-child {
+    min-height: 0;
+    padding-block: 28px 8px;
+  }
+  .js .step:not(.is-active) {
+    opacity: 1;
+  }
+  .faq-head {
+    position: static;
+  }
+}
+
+@media (max-height: 560px) and (orientation: landscape) and (max-width: 640px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .stage {
+    width: min(100%, 320px);
+  }
+}
+
+/* Large and very large screens: scale the whole system up instead of leaving empty space. */
+@media (min-width: 1800px) {
+  html {
+    font-size: 112.5%;
+  }
+  :root {
+    --shell: 1500px;
+  }
+}
+
+@media (min-width: 2300px) {
+  html {
+    font-size: 125%;
+  }
+  :root {
+    --shell: 1680px;
+  }
+}
+
+@media (pointer: coarse) {
+  .dt-tab {
+    min-height: 40px;
   }
 }

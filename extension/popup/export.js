@@ -12,9 +12,9 @@ const INFO_URI = 'https://github.com/ATHARVASAIL/Watcher';
 const cfg = () => globalThis.__WATCHER.config;
 const common = () => globalThis.__WATCHER.common;
 
-const shownValue = (f, raw) => (raw || !f.redact ? f.value : f.display);
+export const shownValue = (f, raw) => (raw || !f.redact ? f.value : f.display);
 
-function shownContext(f, raw) {
+export function shownContext(f, raw) {
   if (!f.context) return null;
   const c = f.context;
   return raw

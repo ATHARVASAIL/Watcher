@@ -67,7 +67,7 @@
     </td>
     <td valign="top">
       <h3>📤 Reports your way</h3>
-      <p>JSON, SARIF 2.1.0 for GitHub code scanning, or Markdown. Values are masked unless you
+      <p>A formatted PDF report, JSON, SARIF 2.1.0 for GitHub code scanning, or Markdown. Values are masked unless you
       choose otherwise.</p>
     </td>
   </tr>
@@ -123,7 +123,7 @@ Get-FileHash watcher.zip -Algorithm SHA256   # Windows PowerShell
 | 1️⃣  | Open your app and click the Watcher icon.                                         |
 | 2️⃣  | Press **Scan this page**. You can close the popup; the scan keeps going.          |
 | 3️⃣  | Review findings. **Reveal** a value, **Copy** it, or **Accept** it once reviewed. |
-| 4️⃣  | Filter by severity or text, then **Export** JSON, SARIF or Markdown.              |
+| 4️⃣  | Filter by severity or text, then **Export** PDF, JSON, SARIF or Markdown.         |
 
 <details>
 <summary><b>Scan options</b></summary>
@@ -236,6 +236,8 @@ Compress-Archive -Path extension\* -DestinationPath watcher.zip -Force     # Win
 
 - [x] Source-map exposure check with original-source scanning
 - [x] SARIF export for GitHub code scanning
+- [x] PDF report export
+- [x] Collapsible findings with expand/collapse all
 - [x] Accept/Reopen triage stored as salted hashes
 - [ ] Same-origin iframes
 - [ ] DevTools panel

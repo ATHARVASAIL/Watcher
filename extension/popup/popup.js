@@ -4,6 +4,7 @@
 import { h, clear } from './dom.js';
 import { renderSummary, renderCard } from './render.js';
 import { buildJsonReport, buildSarif, buildMarkdown } from './export.js';
+import { buildPdf } from './pdf.js';
 
 const { SEVERITIES, DEFAULT_OPTIONS, POPUP_ONLY_OPTIONS, MSG, STORAGE, STALE_AFTER_MS } =
   globalThis.__WATCHER.config;
@@ -41,6 +42,7 @@ const state = {
   query: '',
   showAccepted: false,
   revealed: new Set(), // group fingerprints revealed in this popup session
+  expanded: new Map(), // group fingerprint → expanded? (overrides the per-severity default)
   groups: [],
   accepted: new Map(), // fingerprint → accepted-at
   renderedScanId: null,
@@ -92,6 +94,7 @@ function onScanButton() {
     return;
   }
   state.revealed.clear();
+  state.expanded.clear();
   ui.scanBtn.disabled = true;
   const scannerOptions = Object.fromEntries(Object.keys(DEFAULT_OPTIONS).map((k) => [k, state.options[k]]));
   sendCommand(MSG.START, { options: scannerOptions }); // exportRaw never leaves the popup
@@ -139,7 +142,13 @@ async function exportAs(format) {
     );
   } else if (format === 'md') {
     download(`${base}.md`, buildMarkdown(result, { raw }), 'text/markdown');
+  } else if (format === 'pdf') {
+    download(`${base}.pdf`, buildPdf(result, { raw }), 'application/pdf');
   }
+  setStatus(
+    `Exported ${format.toUpperCase()} report${raw ? ' with UNMASKED values' : ''}.`,
+    raw ? 'warn' : '',
+  );
 }
 
 function setMenuOpen(open) {
@@ -156,10 +165,32 @@ function wireExportMenu() {
     setMenuOpen(false);
     exportAs(format);
   });
+  ui.exportMenu.addEventListener('keydown', (e) => {
+    const items = [...ui.exportMenu.querySelectorAll('button')];
+    const at = items.indexOf(document.activeElement);
+    const go = { ArrowDown: at + 1, ArrowUp: at - 1, Home: 0, End: items.length - 1 }[e.key];
+    if (go === undefined) return;
+    e.preventDefault();
+    items[(go + items.length) % items.length].focus();
+  });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !ui.exportMenu.hidden) {
       setMenuOpen(false);
       ui.exportBtn.focus();
+      return;
+    }
+    // "/" jumps to the findings filter, like many developer tools.
+    const typing = e.target.closest?.('input, textarea, [contenteditable="true"]');
+    if (e.key === '/' && !typing && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      const search = ui.summary.querySelector('input.search');
+      if (search) {
+        e.preventDefault();
+        search.focus();
+      }
+    } else if (e.key === 'Escape' && e.target.matches?.('input.search') && e.target.value) {
+      e.target.value = '';
+      state.query = '';
+      renderResultsList();
     }
   });
   document.addEventListener('click', (e) => {
@@ -204,13 +235,48 @@ function setStatus(text, kind = '') {
   ui.status.textContent = text;
 }
 
+const DEFAULT_EXPANDED = new Set(['critical', 'high']);
+const isExpanded = (group) => state.expanded.get(group.fp) ?? DEFAULT_EXPANDED.has(group.severity);
+
+function toggleExpanded(group, card) {
+  const next = !isExpanded(group);
+  state.expanded.set(group.fp, next);
+  setCardExpanded(card, next);
+  syncExpandAll();
+}
+
+function setCardExpanded(card, expanded) {
+  card.classList.toggle('is-collapsed', !expanded);
+  card.querySelector('.card-toggle')?.setAttribute('aria-expanded', String(expanded));
+  const body = card.querySelector('.card-body');
+  if (body) body.hidden = !expanded;
+}
+
+function syncExpandAll() {
+  const button = ui.summary.querySelector('.expand-all');
+  if (!button) return;
+  const anyCollapsed = [...ui.results.querySelectorAll('article.card')].some((c) =>
+    c.classList.contains('is-collapsed'),
+  );
+  button.textContent = anyCollapsed ? 'Expand all' : 'Collapse all';
+  button.dataset.expand = String(anyCollapsed);
+}
+
+function expandAll(expand) {
+  for (const g of state.groups) state.expanded.set(g.fp, expand);
+  for (const card of ui.results.querySelectorAll('article.card')) setCardExpanded(card, expand);
+  syncExpandAll();
+}
+
 function buildCard(group) {
   return renderCard(group, {
     revealed: state.revealed.has(group.fp),
     accepted: state.accepted.has(group.fp),
+    expanded: isExpanded(group),
     onReveal: toggleReveal,
     onCopy: copyValue,
     onAccept: toggleAccepted,
+    onToggle: toggleExpanded,
   });
 }
 
@@ -237,6 +303,7 @@ function renderResultsList() {
     ui.results.append(card);
   });
 
+  syncExpandAll();
   const hidden = open.length - visible.length;
   if (!visible.length) {
     ui.results.append(h('p', { class: 'empty', text: 'Nothing matches the current filters.' }));
@@ -290,6 +357,7 @@ function renderResultView() {
           state.showAccepted = show;
           renderResultView();
         },
+        onExpandAll: (expand) => expandAll(expand),
       },
     )
       .flat()

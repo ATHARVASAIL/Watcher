@@ -1014,3 +1014,113 @@ body[data-state='running'] .iris {
 .status:empty {
   display: none;
 }
+
+/* ------------------------------------------------------------ collapsible cards */
+
+.card-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 2px 0;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+}
+
+.card-toggle:active:not(:disabled) {
+  transform: none;
+}
+
+.card-head {
+  position: relative;
+}
+
+/* The toggle's hit area covers the whole header (badge, title, tags). */
+.card-toggle::before {
+  position: absolute;
+  inset: -6px -4px;
+  content: '';
+}
+
+.card-head::after {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin: 0 3px 0 2px;
+  content: '';
+  border-right: 2px solid var(--text-dim);
+  border-bottom: 2px solid var(--text-dim);
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 160ms var(--ease);
+  pointer-events: none;
+}
+
+.card.is-collapsed .card-head::after {
+  transform: rotate(-45deg);
+}
+
+.card-head:hover .card-toggle {
+  color: var(--accent);
+}
+
+.card.is-collapsed .value-row {
+  margin-bottom: 0;
+}
+
+.card-body[hidden] {
+  display: none;
+}
+
+.expand-all {
+  flex: none;
+  white-space: nowrap;
+}
+
+.toolbar-2 {
+  margin-bottom: 6px;
+}
+
+/* ------------------------------------------------------------ export menu details */
+
+.menu {
+  min-width: 230px;
+}
+
+.menu button {
+  display: grid;
+  gap: 1px;
+  padding: 7px 10px;
+}
+
+.mi-title {
+  font-weight: 650;
+}
+
+.mi-desc {
+  color: var(--text-dim);
+  font-size: 11.5px;
+}
+
+/* ------------------------------------------------------------ hints */
+
+.hint {
+  margin-top: 12px;
+  color: var(--text-dim);
+  font-size: 11.5px;
+}
+
+.hint kbd {
+  display: inline-block;
+  padding: 0 5px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.6;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+}

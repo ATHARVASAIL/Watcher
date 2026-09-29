@@ -113,7 +113,18 @@ export function renderSummary(result, view, handlers) {
 
   return [
     severityTiles(view.counts, view.filters, handlers.onToggleSeverity),
-    h('div', { class: 'toolbar' }, search, acceptedToggle),
+    h(
+      'div',
+      { class: 'toolbar' },
+      search,
+      h('button', {
+        class: 'mini expand-all',
+        type: 'button',
+        text: 'Expand all',
+        on: { click: (e) => handlers.onExpandAll(e.currentTarget.dataset.expand !== 'false') },
+      }),
+    ),
+    acceptedToggle ? h('div', { class: 'toolbar-2' }, acceptedToggle) : null,
     h(
       'p',
       { class: 'meta' },
@@ -160,23 +171,42 @@ function locationItem(finding, revealed) {
 
 /**
  * @param {object} group     { key, fp, severity, head, items }
- * @param {object} opts      { revealed, accepted, onReveal, onCopy, onAccept }
+ * @param {object} opts      { revealed, accepted, expanded, onReveal, onCopy, onAccept, onToggle }
  */
-export function renderCard(group, { revealed, accepted, onReveal, onCopy, onAccept }) {
+let cardSeq = 0;
+
+export function renderCard(group, { revealed, accepted, expanded, onReveal, onCopy, onAccept, onToggle }) {
   const f = group.head;
   const secret = group.items.some((i) => i.redact);
   const count = group.items.length;
   const inline = group.items.slice(0, MAX_INLINE_LOCATIONS);
   const rest = group.items.slice(MAX_INLINE_LOCATIONS);
 
-  return h(
+  const bodyId = `card-body-${++cardSeq}`;
+  const card = h(
     'article',
-    { class: `card sev-${group.severity}${accepted ? ' is-accepted' : ''}`, 'data-group': group.fp || '' },
+    {
+      class: `card sev-${group.severity}${accepted ? ' is-accepted' : ''}${expanded ? '' : ' is-collapsed'}`,
+      'data-group': group.fp || '',
+    },
     h(
       'header',
       { class: 'card-head' },
       h('span', { class: `badge sev-${group.severity}`, text: SEVERITY_LABELS[group.severity] }),
-      h('h2', { class: 'card-title', text: f.title }),
+      h(
+        'h2',
+        { class: 'card-title' },
+        h('button', {
+          class: 'card-toggle',
+          type: 'button',
+          'aria-expanded': String(expanded),
+          'aria-controls': bodyId,
+          title: 'Show or hide details',
+          text: f.title,
+          on: { click: () => onToggle(group, card) },
+        }),
+      ),
+      count > 1 ? h('span', { class: 'tag', title: plural(count, 'location'), text: `×${count}` }) : null,
       f.confidence === 'heuristic'
         ? h('span', { class: 'tag', title: 'Keyword/entropy match — verify manually', text: 'needs review' })
         : null,
@@ -212,24 +242,29 @@ export function renderCard(group, { revealed, accepted, onReveal, onCopy, onAcce
         on: { click: () => onAccept(group, !accepted) },
       }),
     ),
-    f.note ? h('p', { class: 'note', text: f.note }) : null,
-    h('p', { class: 'dim small', text: `Found in ${plural(count, 'location')}` }),
     h(
-      'ul',
-      { class: 'locs' },
-      inline.map((i) => locationItem(i, revealed)),
+      'div',
+      { class: 'card-body', id: bodyId, hidden: !expanded },
+      f.note ? h('p', { class: 'note', text: f.note }) : null,
+      h('p', { class: 'dim small', text: `Found in ${plural(count, 'location')}` }),
+      h(
+        'ul',
+        { class: 'locs' },
+        inline.map((i) => locationItem(i, revealed)),
+      ),
+      rest.length
+        ? h(
+            'details',
+            { class: 'fold' },
+            h('summary', { text: `${plural(rest.length, 'more location')}` }),
+            h(
+              'ul',
+              { class: 'locs' },
+              rest.map((i) => locationItem(i, revealed)),
+            ),
+          )
+        : null,
     ),
-    rest.length
-      ? h(
-          'details',
-          { class: 'fold' },
-          h('summary', { text: `${plural(rest.length, 'more location')}` }),
-          h(
-            'ul',
-            { class: 'locs' },
-            rest.map((i) => locationItem(i, revealed)),
-          ),
-        )
-      : null,
   );
+  return card;
 }

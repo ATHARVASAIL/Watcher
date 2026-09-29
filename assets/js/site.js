@@ -91,13 +91,31 @@
     if (!nav) return;
     const y = window.scrollY;
     nav.classList.toggle('is-scrolled', y > 24);
-    if (y < 480 || y < lastY - 4) nav.classList.remove('is-hidden');
+    const open = nav.classList.contains('is-open');
+    if (y < 480 || y < lastY - 4 || open) nav.classList.remove('is-hidden');
     else if (y > lastY + 4 && !nav.contains(document.activeElement)) nav.classList.add('is-hidden');
     lastY = y;
   }
 
+  function showPane(n) {
+    if (!storyVisual || storyVisual.dataset.active === n) return;
+    storyVisual.dataset.active = n;
+    for (const pane of storyVisual.querySelectorAll('.dt-pane')) pane.classList.remove('is-live');
+    const pane = storyVisual.querySelector(`.p${n}`);
+    if (pane && motionOK) {
+      void pane.offsetWidth; // restart the highlight animation
+      pane.classList.add('is-live');
+    }
+    for (const tab of storyVisual.querySelectorAll('.dt-tab')) {
+      tab.setAttribute('aria-pressed', String(tab.dataset.pane === n));
+    }
+  }
+
+  // Pinned (sticky) story: scrolling drives the panes. Short screens show it in flow instead.
+  const storyPinned = () => storyVisual && getComputedStyle(storyVisual).position === 'sticky';
+
   function updateStory() {
-    if (!storyVisual || steps.length === 0) return;
+    if (!storyVisual || steps.length === 0 || !storyPinned()) return;
     const viewport = window.innerHeight;
     const readingLine = viewport * (window.innerWidth <= 900 ? 0.7 : 0.5);
 
@@ -112,16 +130,7 @@
       }
     }
 
-    const n = active.dataset.step;
-    if (storyVisual.dataset.active !== n) {
-      storyVisual.dataset.active = n;
-      for (const pane of storyVisual.querySelectorAll('.dt-pane')) pane.classList.remove('is-live');
-      const pane = storyVisual.querySelector(`.p${n}`);
-      if (pane && motionOK) {
-        void pane.offsetWidth; // restart the highlight animation
-        pane.classList.add('is-live');
-      }
-    }
+    showPane(active.dataset.step);
     for (const step of steps) step.classList.toggle('is-active', step === active);
 
     if (storyProgress) {
@@ -158,6 +167,69 @@
   window.addEventListener('scroll', onScroll, { passive: true });
   window.addEventListener('resize', onScroll, { passive: true });
   nav?.addEventListener('focusin', () => nav.classList.remove('is-hidden'));
+
+  /* ------------------------------------------------------------------ story tabs */
+
+  for (const tab of storyVisual?.querySelectorAll('.dt-tab') ?? []) {
+    tab.setAttribute('aria-pressed', String(tab.dataset.pane === storyVisual.dataset.active));
+    tab.addEventListener('click', () => {
+      const n = tab.dataset.pane;
+      const step = steps.find((s) => s.dataset.step === n);
+      if (storyPinned() && step) {
+        const target = step.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.3;
+        window.scrollTo({ top: target, behavior: motionOK ? 'smooth' : 'auto' });
+      } else {
+        showPane(n);
+      }
+    });
+  }
+
+  /* ------------------------------------------------------------------ mobile menu */
+
+  const navToggle = document.querySelector('[data-nav-toggle]');
+  const setMenu = (open) => {
+    if (!nav || !navToggle) return;
+    nav.classList.toggle('is-open', open);
+    navToggle.setAttribute('aria-expanded', String(open));
+    navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  };
+  navToggle?.addEventListener('click', () => setMenu(!nav.classList.contains('is-open')));
+  nav?.querySelector('.nav-links')?.addEventListener('click', (e) => {
+    if (e.target.closest('a')) setMenu(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && nav?.classList.contains('is-open')) {
+      setMenu(false);
+      navToggle?.focus();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (nav?.classList.contains('is-open') && !nav.contains(e.target)) setMenu(false);
+  });
+  window.matchMedia('(min-width: 861px)').addEventListener('change', (e) => {
+    if (e.matches) setMenu(false);
+  });
+
+  /* ------------------------------------------------------------------ current section in the nav */
+
+  const navLinks = [...document.querySelectorAll('.nav-links a[href^="#"]')];
+  if ('IntersectionObserver' in window && navLinks.length) {
+    const byId = new Map(navLinks.map((a) => [a.getAttribute('href').slice(1), a]));
+    const spy = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          for (const a of navLinks) a.removeAttribute('aria-current');
+          byId.get(entry.target.id)?.setAttribute('aria-current', 'true');
+        }
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    );
+    for (const id of byId.keys()) {
+      const section = document.getElementById(id);
+      if (section) spy.observe(section);
+    }
+  }
   updateNav();
   updateStory();
   updateParallax();

@@ -125,7 +125,17 @@
           <svg viewBox="0 0 128 128" aria-hidden="true"><use href="#eye" /></svg>
           <span>Watcher</span>
         </a>
-        <nav class="nav-links" aria-label="Primary">
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="navMenu"
+          aria-label="Open menu"
+          data-nav-toggle
+        >
+          <span aria-hidden="true"></span>
+        </button>
+        <nav class="nav-links" id="navMenu" aria-label="Primary">
           <a href="#story">Why</a>
           <a href="#features">Features</a>
           <a href="#security">Security</a>
@@ -201,7 +211,7 @@
                 <svg aria-hidden="true"><use href="#i-check" /></svg>No account
               </li>
               <li>
-                <svg aria-hidden="true"><use href="#i-check" /></svg>70 KB download
+                <svg aria-hidden="true"><use href="#i-check" /></svg>78 KB download
               </li>
             </ul>
           </div>
@@ -369,9 +379,9 @@
               <div class="devtools">
                 <div class="dt-bar">
                   <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
-                  <span class="dt-tab t1">Sources</span>
-                  <span class="dt-tab t2">Source map</span>
-                  <span class="dt-tab t3">Application</span>
+                  <button class="dt-tab t1" type="button" data-pane="1">Sources</button>
+                  <button class="dt-tab t2" type="button" data-pane="2">Source map</button>
+                  <button class="dt-tab t3" type="button" data-pane="3">Application</button>
                 </div>
                 <div class="dt-body">
                   <div class="dt-pane p1">
@@ -525,11 +535,11 @@
             <article class="card c-export" data-spot data-reveal>
               <h3>Reports <span class="thin">that travel.</span></h3>
               <div class="files" aria-hidden="true">
-                <span class="file f-md">.md</span>
+                <span class="file f-md">.pdf</span>
                 <span class="file f-json">.json</span>
                 <span class="file f-sarif">.sarif</span>
               </div>
-              <p>JSON, Markdown, or SARIF 2.1.0 straight into GitHub code scanning.</p>
+              <p>A formatted PDF to share, plus JSON, Markdown, or SARIF 2.1.0 for GitHub code scanning.</p>
             </article>
 
             <article class="card c-triage" data-spot data-reveal>
@@ -556,8 +566,8 @@
               >
             </h2>
             <p class="lead">
-              A security tool you don't have to trust blindly. Every guarantee below is enforced in code and
-              checked on every build.
+              A security tool you don't have to trust blindly. Every guarantee below is enforced by the
+              extension's own code, which you can read line by line.
             </p>
           </div>
 
@@ -690,7 +700,7 @@
             <li data-reveal class="rd3">
               <span class="flow-no">04</span>
               <h3>Fix</h3>
-              <p>Rotate what's real, export the report, and scan again to confirm it's gone.</p>
+              <p>Rotate what's real, export a PDF or JSON report, and scan again to confirm it's gone.</p>
             </li>
           </ol>
         </div>
@@ -740,7 +750,7 @@
             </a>
             <div class="verify">
               <span class="verify-label">SHA-256 of watcher.zip</span>
-              <code id="sha256">881131b93e5aed6cfed3cae202fc6375cf014adf8d20c4dcf8e3668dd6f3e826</code>
+              <code id="sha256">590d4841677f07a78bcd94347aeac6707e1f3e7c3ad93f830fc90d6c496e0261</code>
               <button type="button" data-copy="#sha256">Copy</button>
             </div>
           </aside>
