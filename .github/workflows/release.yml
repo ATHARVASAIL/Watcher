@@ -46,7 +46,7 @@ jobs:
         run: SOURCE_DATE_EPOCH="$(git log -1 --format=%ct)" npm run build
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: dist/*.zip
 
