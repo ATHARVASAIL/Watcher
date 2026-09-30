@@ -706,11 +706,13 @@ kbd {
 }
 
 .pulse {
+  flex: none;
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--accent);
-  animation: pulse 2.4s var(--ease-out) infinite;
+  box-shadow: 0 0 10px rgb(92 225 240 / 0.7);
+  animation: breathe 2.4s ease-in-out infinite;
 }
 
 .display {
@@ -2646,13 +2648,9 @@ button[data-copy]:hover {
   }
 }
 
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgb(92 225 240 / 0.6);
-  }
-  70%,
-  100% {
-    box-shadow: 0 0 0 10px rgb(92 225 240 / 0);
+@keyframes breathe {
+  50% {
+    opacity: 0.35;
   }
 }
 
@@ -2827,28 +2825,13 @@ button[data-copy]:hover {
   .faq-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+  /* Phones and tablets: the story visual sits in the page (not pinned) and its tabs switch panes. */
   .story-visual {
-    top: calc(env(safe-area-inset-top, 0px) + 84px);
-    padding-bottom: 10px;
-    background: var(--bg);
+    position: relative;
+    top: auto;
   }
-  .story-visual::before {
-    content: '';
-    position: absolute;
-    right: 0;
-    bottom: 100%;
-    left: 0;
-    height: 120px;
-    background: var(--bg);
-  }
-  .story-visual::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    right: 0;
-    left: 0;
-    height: 48px;
-    background: linear-gradient(var(--bg), rgb(6 8 15 / 0));
+  .js .step:not(.is-active) {
+    opacity: 1;
   }
   .dt-body {
     min-height: 272px;
@@ -2865,11 +2848,18 @@ button[data-copy]:hover {
   .table {
     font-size: 0.78rem;
   }
+  .story-grid {
+    gap: 8px;
+  }
+  .story-steps {
+    gap: 4px;
+  }
   .step,
   .step:first-child {
-    align-content: center;
-    min-height: 58vh;
-    padding-top: 32px;
+    align-content: start;
+    gap: 10px;
+    min-height: 0;
+    padding-block: 28px 4px;
   }
   .stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3390,5 +3380,50 @@ button[data-copy] {
 @media (pointer: coarse) {
   .dt-tab {
     min-height: 40px;
+  }
+}
+
+/* Phones: shorter, quicker reveals so content never feels late while scrolling. */
+@media (max-width: 760px) {
+  .js-reveal [data-reveal]:not(.is-in) {
+    translate: 0 14px;
+  }
+  .js-reveal [data-reveal],
+  .js-reveal .card[data-reveal] {
+    transition-duration: 0.6s;
+  }
+}
+
+/* Phones: calmer vertical rhythm between sections. */
+@media (max-width: 760px) {
+  :root {
+    --section: 80px;
+  }
+  .section-head {
+    margin-bottom: 40px;
+  }
+  .proof {
+    padding-block: 56px;
+  }
+  .vault {
+    padding-block: 72px;
+  }
+  .guards {
+    margin-top: 40px;
+  }
+  .guards li {
+    padding-block: 28px 30px;
+  }
+  .stat {
+    padding-block: 28px 30px;
+  }
+  .flow {
+    margin-top: 72px;
+  }
+  .footer {
+    padding-top: 88px;
+  }
+  .foot-row {
+    margin-top: 72px;
   }
 }
