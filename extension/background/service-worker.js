@@ -12,10 +12,38 @@
 // Types, and importScripts() is a Trusted Types sink. These files attach to globalThis.__WATCHER.
 import '../shared/common.js';
 import '../shared/triage.js';
+// DOM-free rule + engine modules, so the worker can scan cookie and network data itself.
+import '../scanner/lib/helpers.js';
+import '../scanner/rules/vendor.js';
+import '../scanner/rules/vendor-extra.js';
+import '../scanner/rules/generic.js';
+import '../scanner/rules/infrastructure.js';
+import '../scanner/rules/debug.js';
+import '../scanner/engine.js';
 
-const { MSG, STORAGE, SCANNER_FILES, PROGRESS_WRITE_EVERY_MS, BADGE_COLORS } = self.__WATCHER.config;
+const { MSG, STORAGE, SCANNER_FILES, LIMITS, PROGRESS_WRITE_EVERY_MS, BADGE_COLORS } = self.__WATCHER.config;
 const { groupFindings } = self.__WATCHER.common;
 const { annotateGroups } = self.__WATCHER.triage;
+const engine = self.__WATCHER.engine;
+
+/** Minimal scan env for worker-side passes (no page, so no host-relative classification). */
+function workerEnv(url) {
+  let host = '';
+  try {
+    host = new URL(url).hostname.toLowerCase();
+  } catch {
+    /* keep empty */
+  }
+  let seq = 0;
+  return { pageHost: host, pageIsNonProd: false, nextId: () => `sw-${++seq}`, signal: { aborted: false } };
+}
+
+// Options for the scan currently running on each tab (so the result handler knows what to augment).
+const activeOptions = new Map();
+// Active network-capture sessions, keyed by tabId.
+const captures = new Map();
+
+const hasPermission = (query) => chrome.permissions.contains(query).catch(() => false);
 
 const POPUP_URL_PREFIX = chrome.runtime.getURL('popup/');
 const EXTENSION_ORIGIN = chrome.runtime.getURL('');
@@ -116,12 +144,17 @@ function saveFinal(tabId, scanId, record) {
 async function startScan(tabId, options) {
   const scanId = crypto.randomUUID();
   const now = Date.now();
+  activeOptions.set(tabId, options);
   await enqueue(async () => {
     await chrome.storage.session.set({
       [keyFor(tabId)]: { state: 'running', scanId, startedAt: now, lastProgressAt: now, done: 0, total: 0 },
     });
     await updateBadge(tabId);
   });
+  // Network capture (optional) records API responses while the page runs, so start it first.
+  if (options.networkCapture && (await hasPermission({ permissions: ['debugger'] }))) {
+    startCapture(tabId, scanId, options).catch(() => {});
+  }
   try {
     // 1) Load the scanner into the page's isolated world (idempotent).
     await chrome.scripting.executeScript({ target: { tabId }, world: 'ISOLATED', files: SCANNER_FILES });
@@ -145,6 +178,8 @@ async function startScan(tabId, options) {
 }
 
 async function cancelScan(tabId) {
+  const cap = captures.get(tabId);
+  if (cap && cap.active) return stopCapture(tabId, 'cancelled'); // ends capture and finalises the held result
   try {
     await chrome.scripting.executeScript({
       target: { tabId },
@@ -154,6 +189,176 @@ async function cancelScan(tabId) {
   } catch {
     /* page gone: the stale-record logic in the popup takes over */
   }
+}
+
+/* ------------------------------------------------------------ full access: HttpOnly cookies */
+
+/** Scan every cookie for the tab's URL, including HttpOnly ones the page cannot read. */
+async function collectCookieFindings(url) {
+  if (!chrome.cookies || !(await hasPermission({ permissions: ['cookies'] }))) return [];
+  let cookies;
+  try {
+    cookies = await chrome.cookies.getAll({ url });
+  } catch {
+    return [];
+  }
+  const env = workerEnv(url);
+  const out = [];
+  for (const c of cookies) {
+    const flags = [c.httpOnly ? 'HttpOnly' : null, c.secure ? 'Secure' : null].filter(Boolean).join(', ');
+    const source = { type: 'cookie-store', label: `cookie ${c.name}${flags ? ` (${flags})` : ''}`, url };
+    try {
+      out.push(...(await engine.scanText(`${c.name}=${c.value}`, source, env)));
+    } catch {
+      /* skip one bad cookie */
+    }
+    if (out.length >= LIMITS.maxFindings) break;
+  }
+  return out;
+}
+
+/* ------------------------------------------------------------ network capture (chrome.debugger) */
+
+const CAPTURE_TYPES = /Document|XHR|Fetch|Script|Manifest/i;
+const CAPTURE_MIME = /json|javascript|ecmascript|text|html|xml/i;
+
+async function startCapture(tabId, scanId, options) {
+  const target = { tabId };
+  const session = { active: true, target, scanId, options, byId: new Map(), bodies: [], pageResult: null };
+  captures.set(tabId, session);
+  try {
+    await chrome.debugger.attach(target, '1.3');
+    await chrome.debugger.sendCommand(target, 'Network.enable');
+  } catch {
+    session.active = false;
+    captures.delete(tabId);
+    return;
+  }
+  session.timer = setTimeout(() => stopCapture(tabId, 'timeout').catch(() => {}), LIMITS.networkCaptureMs);
+  // Reflect the capture state so the popup can show "capturing… press Stop".
+  enqueue(async () => {
+    const current = await getRecord(tabId);
+    if (current && current.state === 'running' && current.scanId === scanId) {
+      await chrome.storage.session.set({
+        [keyFor(tabId)]: { ...current, capturing: true, lastProgressAt: Date.now() },
+      });
+    }
+  });
+}
+
+chrome.debugger?.onEvent?.addListener((source, method, params) => {
+  const s = captures.get(source.tabId);
+  if (!s || !s.active) return;
+  if (method === 'Network.responseReceived') {
+    const { requestId, response, type } = params;
+    if (CAPTURE_TYPES.test(type || '') && response) {
+      s.byId.set(requestId, { url: response.url || '', mime: response.mimeType || '' });
+    }
+  } else if (method === 'Network.loadingFinished') {
+    const meta = s.byId.get(params.requestId);
+    if (!meta) return;
+    s.byId.delete(params.requestId);
+    if (s.bodies.length >= LIMITS.maxCaptureBodies) return;
+    if (!CAPTURE_MIME.test(meta.mime) && !/\.(?:js|mjs|cjs|json|txt|css|map)$/i.test(meta.url)) return;
+    chrome.debugger
+      .sendCommand(s.target, 'Network.getResponseBody', { requestId: params.requestId })
+      .then((r) => {
+        if (!r || !r.body || !s.active) return;
+        let body = r.body;
+        if (r.base64Encoded) {
+          try {
+            body = atob(body);
+          } catch {
+            return;
+          }
+        }
+        s.bodies.push({ url: meta.url, mime: meta.mime, text: body.slice(0, LIMITS.maxCaptureBodyBytes) });
+      })
+      .catch(() => {});
+  }
+});
+
+// If the user (or Chrome) detaches the debugger, end the session cleanly.
+chrome.debugger?.onDetach?.addListener((source) => {
+  const s = captures.get(source.tabId);
+  if (s && s.active) stopCapture(source.tabId, 'detached').catch(() => {});
+});
+
+async function stopCapture(tabId, reason) {
+  const s = captures.get(tabId);
+  if (!s) return;
+  s.active = false;
+  clearTimeout(s.timer);
+  captures.delete(tabId);
+  if (reason !== 'detached') {
+    try {
+      await chrome.debugger.detach(s.target);
+    } catch {
+      /* already gone */
+    }
+  }
+
+  const findings = [];
+  for (const b of s.bodies) {
+    let label = 'network response';
+    try {
+      const u = new URL(b.url);
+      label = `network: ${u.host}${u.pathname}`.slice(0, 100);
+    } catch {
+      /* keep default */
+    }
+    try {
+      findings.push(
+        ...(await engine.scanText(b.text, { type: 'network', label, url: b.url }, workerEnv(b.url))),
+      );
+    } catch {
+      /* skip one body */
+    }
+    if (findings.length >= LIMITS.maxFindings) break;
+  }
+
+  const result = s.pageResult;
+  if (!result) return; // page scan never completed; nothing to finalise
+  result.findings.push(...findings.slice(0, Math.max(0, LIMITS.maxFindings - result.findings.length)));
+  result.sources.push({
+    type: 'network',
+    label: `Captured network (${s.bodies.length} response${s.bodies.length === 1 ? '' : 's'})`,
+    url: result.url,
+    bytes: 0,
+    findings: findings.length,
+  });
+  result.stats = { ...result.stats, networkCaptured: s.bodies.length };
+  await saveFinal(tabId, s.scanId, { state: 'done', scanId: s.scanId, finishedAt: Date.now(), result });
+}
+
+/* ------------------------------------------------------------ result handling */
+
+async function handleResult(tabId, scanId, result) {
+  const opts = activeOptions.get(tabId) || {};
+  if (opts.fullAccess) {
+    try {
+      const extra = await collectCookieFindings(result.url);
+      if (extra.length) {
+        result.findings.push(...extra.slice(0, Math.max(0, LIMITS.maxFindings - result.findings.length)));
+        result.sources.push({
+          type: 'cookie-store',
+          label: 'HttpOnly cookies (browser cookie store)',
+          url: result.url,
+          bytes: 0,
+          findings: extra.length,
+        });
+      }
+    } catch {
+      /* cookies unavailable */
+    }
+  }
+  const cap = captures.get(tabId);
+  if (cap && cap.active) {
+    cap.pageResult = result; // hold; stopCapture will merge and finalise
+    return;
+  }
+  activeOptions.delete(tabId);
+  await saveFinal(tabId, scanId, { state: 'done', scanId, finishedAt: Date.now(), result });
 }
 
 const lastProgressWrite = new Map();
@@ -185,14 +390,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (sender.id !== chrome.runtime.id || !msg || typeof msg !== 'object') return undefined;
 
   // Commands from our popup (a content script's sender.url is the web page, so it can't pass this check).
-  if (msg.type === MSG.START || msg.type === MSG.CANCEL || msg.type === MSG.REFRESH_BADGE) {
+  if (
+    msg.type === MSG.START ||
+    msg.type === MSG.CANCEL ||
+    msg.type === MSG.CAPTURE_STOP ||
+    msg.type === MSG.REFRESH_BADGE
+  ) {
     if (!isFromPopup(sender) || !Number.isInteger(msg.tabId)) return undefined;
     const task =
       msg.type === MSG.START
         ? startScan(msg.tabId, msg.options && typeof msg.options === 'object' ? msg.options : {})
         : msg.type === MSG.CANCEL
           ? cancelScan(msg.tabId)
-          : enqueue(() => updateBadge(msg.tabId));
+          : msg.type === MSG.CAPTURE_STOP
+            ? stopCapture(msg.tabId, 'stopped')
+            : enqueue(() => updateBadge(msg.tabId));
     task.finally(() => sendResponse({ ok: true }));
     return true; // keep the channel open for the async response
   }
@@ -205,12 +417,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === MSG.PROGRESS) {
     saveProgress(tabId, msg);
   } else if (msg.type === MSG.RESULT && msg.result && Array.isArray(msg.result.findings)) {
-    saveFinal(tabId, msg.scanId, {
-      state: 'done',
-      scanId: msg.scanId,
-      finishedAt: Date.now(),
-      result: msg.result,
-    });
+    handleResult(tabId, msg.scanId, msg.result);
   } else if (msg.type === MSG.ERROR) {
     saveFinal(tabId, msg.scanId, {
       state: 'error',
@@ -225,5 +432,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 // Results can contain secrets: drop them as soon as the tab is gone.
 chrome.tabs.onRemoved.addListener((tabId) => {
   lastProgressWrite.delete(tabId);
+  activeOptions.delete(tabId);
+  const cap = captures.get(tabId);
+  if (cap && cap.active) stopCapture(tabId, 'detached').catch(() => {});
   enqueue(() => chrome.storage.session.remove(keyFor(tabId)));
 });

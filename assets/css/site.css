@@ -3427,3 +3427,70 @@ button[data-copy] {
     margin-top: 72px;
   }
 }
+
+/* ================================================================ deep-scan section */
+
+.deeper {
+  padding-top: var(--section);
+}
+
+.deep-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.deep-grid li {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: clamp(22px, 2.4vw, 32px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+}
+
+.deep-grid h3 {
+  font-size: clamp(1.4rem, 1.1rem + 0.8vw, 1.85rem);
+  letter-spacing: -0.03em;
+}
+
+.deep-grid p {
+  color: var(--fg-2);
+  font-size: 1.02rem;
+}
+
+.d-tag {
+  align-self: start;
+  padding: 5px 10px;
+  border: 1px solid var(--accent-edge);
+  border-radius: 999px;
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.d-tag.d-perm {
+  border-color: color-mix(in srgb, var(--heat-2) 45%, transparent);
+  background: color-mix(in srgb, var(--heat-2) 12%, transparent);
+  color: var(--heat-2);
+}
+
+@media (max-width: 1000px) {
+  .deep-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .deep-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -37,7 +37,7 @@
 <table>
   <tr>
     <td width="33%" valign="top">
-      <h3>🔑 55 detection rules</h3>
+      <h3>🔑 69 detection rules</h3>
       <p>AWS, GitHub, Stripe, OpenAI, Anthropic, Slack, Supabase, Sentry, Vault and more, plus
       heuristic secrets, database URLs, internal hosts and debug leftovers.
       <a href="extension/scanner/rules/">See the rules →</a></p>
@@ -142,6 +142,25 @@ Get-FileHash watcher.zip -Algorithm SHA256   # Windows PowerShell
 
 </details>
 
+<details>
+<summary><b>Deep scan &amp; advanced modes</b></summary>
+
+All off by default. The first two stay same-origin and need no extra permission:
+
+| Option                      | What it does                                                                                                                               |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Crawl this site**         | Follows same-site links, reads same-origin iframes, and scans Service Worker caches.                                                       |
+| **Check for exposed files** | Probes paths that must never be served (`.env`, `.git`, `config.json`, backups, …) and, on a hit, reports the exposure and scans the file. |
+
+These two request a Chrome permission the moment you switch them on, and it is removed when you switch them off:
+
+| Option              | Permission                         | What it does                                                          |
+| ------------------- | ---------------------------------- | --------------------------------------------------------------------- |
+| **Full access**     | `cookies` + host access            | Reads HttpOnly cookies and third-party files the page loaded.         |
+| **Capture network** | `debugger` (shows Chrome's banner) | Records API responses while you use the app, then scans them on Stop. |
+
+</details>
+
 ## 🎯 What it catches
 
 | Severity                                                                    | Examples                                                                                                      |
@@ -166,7 +185,7 @@ flowchart LR
   C --> D["HTML · storage · cookies"]
   C --> E["JS bundles · lazy chunks · CSS"]
   E --> F["Source maps → original source"]
-  D & E & F --> G["55 rules + validators"]
+  D & E & F --> G["69 rules + validators"]
   G --> H[("Session memory")]
   H --> I["Popup · badge · exports"]
 ```

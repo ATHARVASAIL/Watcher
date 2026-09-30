@@ -50,6 +50,8 @@
       if (raw && typeof raw[key] === typeof DEFAULT_OPTIONS[key]) opts[key] = raw[key];
     }
     opts.maxFiles = Math.max(1, Math.min(1000, Math.floor(opts.maxFiles) || DEFAULT_OPTIONS.maxFiles));
+    // Full access implies reading third-party files (the host permission makes the fetches succeed).
+    if (opts.fullAccess) opts.includeCrossOrigin = true;
     return opts;
   }
 
@@ -219,36 +221,23 @@
       return out;
     }
 
-    async function processItem(item) {
-      let text = item.text;
-      let extra = null;
-      let bytes = 0;
-      let truncated = false;
-      let sourceMapHeader = null;
+    // URLs fetched anywhere in the scan, so the main pass and the deep crawl never double-fetch.
+    const seen = new Set();
 
-      if (item.collect) {
-        const r = item.collect();
-        if (r.error) {
-          skipped.push({ label: item.label, reason: r.error });
-          return;
-        }
-        text = r.text;
-        extra = r;
-      } else if (item.url) {
-        const r = await src.fetchText(item.url, { budget, signal });
-        if (r.error) {
-          skipped.push({ label: item.label, reason: r.error });
-          return;
-        }
-        ({ text, bytes, truncated, sourceMapHeader } = r);
-      }
-      bytes ||= text.length;
-      bytesScanned += bytes;
+    /** Scan a block of text as a source (inline script/style, HTML, a crawled page, an exposed file). */
+    async function scanText2(text, meta) {
+      if (!text) return;
+      bytesScanned += text.length;
+      const source = {
+        type: meta.type,
+        label: meta.label,
+        url: meta.url || null,
+        lineLabels: meta.lineLabels,
+        parent: meta.parent,
+      };
+      let found = await scanText(text, source, env);
 
-      const source = { type: item.type, label: item.label, url: item.url, lineLabels: extra?.lineLabels };
-      let found = text ? await scanText(text, source, env) : [];
-
-      for (const s of extra?.structural || []) {
+      for (const s of meta.structural || []) {
         found.push(
           manualFinding(env, source, s.where, {
             ruleId: 'prefilled-password-input',
@@ -260,37 +249,71 @@
           }),
         );
       }
-      if (extra?.entries) found.push(...clientStoreFindings(env, source, item.label, extra.entries, found));
+      if (meta.entries) found.push(...clientStoreFindings(env, source, meta.label, meta.entries, found));
 
-      // Source maps: confirm exposure and scan what they reveal.
       if (
         opts.sourceMaps &&
-        (item.type === 'script-file' || item.type === 'style-file' || item.type === 'inline-script')
+        (meta.type === 'inline-script' || meta.type === 'script-file' || meta.type === 'style-file')
       ) {
-        const refs = src.findSourceMapRefs(text, sourceMapHeader);
-        if (refs.length) {
-          total += refs.length;
-          for (const ref of refs) {
-            const mapFindings = await processSourceMap(ref, item);
-            if (mapFindings.some((f) => f.ruleId === 'source-map-exposed')) {
-              // Exposure is confirmed, so the plain "referenced" note is redundant.
-              found = found.filter((f) => f.ruleId !== 'source-map-reference');
-            }
-            addFindings(mapFindings);
-            report(++done, total, `source map for ${item.label}`);
-          }
+        for (const ref of src.findSourceMapRefs(text, meta.sourceMapHeader)) {
+          const mapFindings = await processSourceMap(ref, { label: meta.label, url: meta.url });
+          if (mapFindings.some((f) => f.ruleId === 'source-map-exposed'))
+            found = found.filter((f) => f.ruleId !== 'source-map-reference');
+          addFindings(mapFindings);
         }
       }
 
       addFindings(found);
       sources.push({
-        type: item.type,
-        label: item.label,
-        url: item.url || null,
-        bytes,
-        truncated,
+        type: meta.type,
+        label: meta.label,
+        url: meta.url || null,
+        bytes: text.length,
+        truncated: Boolean(meta.truncated),
         findings: found.length,
       });
+      return found;
+    }
+
+    /** Fetch a same-origin (or, with Full access, any) file and scan it. Deduped across the whole scan. */
+    async function scanFileUrl(url, type, parentLabel = null) {
+      if (seen.has(url)) return;
+      seen.add(url);
+      const r = await src.fetchText(url, { budget, signal });
+      const label = src.displayUrl(src.absUrl(url) || { origin: '', pathname: url, search: '', href: url });
+      if (r.error) {
+        skipped.push({ label, reason: r.error });
+        return;
+      }
+      await scanText2(r.text, {
+        type,
+        label,
+        url,
+        parent: parentLabel,
+        sourceMapHeader: r.sourceMapHeader,
+        truncated: r.truncated,
+      });
+    }
+
+    async function processItem(item) {
+      if (item.collect) {
+        const r = item.collect();
+        if (r.error) {
+          skipped.push({ label: item.label, reason: r.error });
+          return;
+        }
+        await scanText2(r.text, {
+          type: item.type,
+          label: item.label,
+          lineLabels: r.lineLabels,
+          structural: r.structural,
+          entries: r.entries,
+        });
+      } else if (item.url) {
+        await scanFileUrl(item.url, item.type);
+      } else if (item.text !== null && item.text !== undefined) {
+        await scanText2(item.text, { type: item.type, label: item.label });
+      }
     }
 
     // Quick local sources first, then fetched files through a small pool.
@@ -319,6 +342,39 @@
       while (cursor < remote.length && !signal.aborted) await guarded(remote[cursor++]);
     };
     await Promise.all(Array.from({ length: Math.min(LIMITS.concurrency, remote.length) }, worker));
+
+    // Deep passes: crawl same-site pages, read same-origin iframes and SW caches, probe exposed files.
+    if ((opts.crawl || opts.probeFiles) && !signal.aborted && ns.deep) {
+      const api = {
+        signal,
+        skipped,
+        report: (label) => {
+          total++;
+          report(++done, total, label);
+        },
+        fetchText: (url, { probe = false, allowHtml = false } = {}) =>
+          src.fetchText(url, {
+            budget,
+            signal,
+            allowHtml,
+            maxBytes: probe ? 512 * 1024 : LIMITS.maxBytesPerFile,
+          }),
+        scanInline: (text, type, label, url = null) => scanText2(text, { type, label, url }),
+        scanFileUrl,
+        addFinding: (f) => addFindings([f]),
+        manual: (source, where, spec) => manualFinding(env, source, where, spec),
+        markSeen: (url) => {
+          if (seen.has(url)) return true;
+          seen.add(url);
+          return false;
+        },
+      };
+      try {
+        await ns.deep.run(opts, api);
+      } catch (e) {
+        skipped.push({ label: 'deep scan', reason: String((e && e.message) || e).slice(0, 200) });
+      }
+    }
 
     return {
       scanId,

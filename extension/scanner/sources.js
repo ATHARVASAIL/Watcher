@@ -242,7 +242,7 @@
    * GET a text resource with a timeout, a byte cap and the scan's abort signal.
    * @returns {Promise<{text: string, bytes: number, truncated: boolean, sourceMapHeader: string|null} | {error: string}>}
    */
-  async function fetchText(url, { budget, signal, maxBytes = LIMITS.maxBytesPerFile }) {
+  async function fetchText(url, { budget, signal, maxBytes = LIMITS.maxBytesPerFile, allowHtml = false }) {
     const timeout = AbortSignal.timeout(LIMITS.fetchTimeoutMs);
     const combined = signal ? AbortSignal.any([signal, timeout]) : timeout;
     try {
@@ -256,7 +256,7 @@
       });
       if (!res.ok) return { error: `HTTP ${res.status}` };
       const contentType = res.headers.get('content-type') || '';
-      if (/text\/html/i.test(contentType))
+      if (!allowHtml && /text\/html/i.test(contentType))
         return { error: 'server returned HTML (SPA fallback or error page)' };
 
       const cap = Math.min(maxBytes, budget.remaining);

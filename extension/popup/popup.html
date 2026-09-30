@@ -101,6 +101,31 @@
             ><input type="checkbox" data-opt="exportRaw" /> Put unmasked values in exports</label
           >
         </div>
+
+        <p class="opt-group-title">Deep scan <span class="dim">— same site, no extra permissions</span></p>
+        <div class="opt-grid">
+          <label
+            ><input type="checkbox" data-opt="crawl" /> Crawl this site
+            <span class="opt-hint">follow same-site links, iframes &amp; SW caches</span></label
+          >
+          <label
+            ><input type="checkbox" data-opt="probeFiles" /> Check for exposed files
+            <span class="opt-hint">.env, .git, backups, config…</span></label
+          >
+        </div>
+
+        <p class="opt-group-title">Advanced <span class="dim">— asks Chrome for permission</span></p>
+        <div class="opt-grid">
+          <label
+            ><input type="checkbox" data-opt="fullAccess" data-perm="fullAccess" /> Full access
+            <span class="opt-hint">read HttpOnly cookies &amp; third-party files</span></label
+          >
+          <label
+            ><input type="checkbox" data-opt="networkCapture" data-perm="networkCapture" /> Capture network
+            <span class="opt-hint">watch API responses while the page runs</span></label
+          >
+        </div>
+        <p id="optNote" class="opt-note" hidden></p>
       </details>
 
       <div id="status" class="status" role="status" aria-live="polite"></div>

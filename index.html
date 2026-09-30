@@ -169,7 +169,7 @@
               <span class="pulse" aria-hidden="true"></span>
               <span><span class="hide-sm">Open-source </span>Chrome extension</span>
               <span class="kicker-ver"
-                ><span class="sep" aria-hidden="true">/</span> <span class="ver">v0.2.0</span></span
+                ><span class="sep" aria-hidden="true">/</span> <span class="ver">v0.3.0</span></span
               >
             </p>
             <h1 class="display">
@@ -211,7 +211,7 @@
                 <svg aria-hidden="true"><use href="#i-check" /></svg>No account
               </li>
               <li>
-                <svg aria-hidden="true"><use href="#i-check" /></svg>78 KB download
+                <svg aria-hidden="true"><use href="#i-check" /></svg>88 KB download
               </li>
             </ul>
           </div>
@@ -494,8 +494,8 @@
             </article>
 
             <article class="card c-count" data-spot data-reveal>
-              <p class="mega" aria-hidden="true">55</p>
-              <h3><span class="sr-only">55 </span>detection rules</h3>
+              <p class="mega" aria-hidden="true">69</p>
+              <h3><span class="sr-only">69 </span>detection rules</h3>
               <p>Vendor key formats, generic secrets, infrastructure leaks and debug leftovers.</p>
               <ul class="tags" aria-label="Places it looks">
                 <li>JS bundles</li>
@@ -505,6 +505,8 @@
                 <li>CSS</li>
                 <li>Storage</li>
                 <li>Cookies</li>
+                <li>SW caches</li>
+                <li>Network</li>
               </ul>
             </article>
 
@@ -551,6 +553,54 @@
               <p>Reviewed findings stay hidden per site. Only a salted hash is stored, never the value.</p>
             </article>
           </div>
+        </div>
+      </section>
+
+      <!-- ================================================================ deep scan -->
+      <section class="deeper" id="deeper">
+        <div class="shell">
+          <header class="section-head split" data-reveal>
+            <div>
+              <p class="kicker">Go deeper</p>
+              <h2 class="h2">One page, <span class="thin">or the whole app.</span></h2>
+            </div>
+            <p class="lead">
+              Turn on more reach per scan. The first two stay on your own origin and need nothing extra; the
+              last two ask Chrome for permission the moment you switch them on, and drop it when you switch
+              them off.
+            </p>
+          </header>
+
+          <ul class="deep-grid">
+            <li data-reveal>
+              <span class="d-tag">No extra permission</span>
+              <h3>Crawl this site</h3>
+              <p>Follow same-site links, read same-origin iframes, and scan Service Worker caches.</p>
+            </li>
+            <li data-reveal class="rd1">
+              <span class="d-tag">No extra permission</span>
+              <h3>Check for exposed files</h3>
+              <p>
+                Probe for <code>.env</code>, <code>.git</code>, <code>config.json</code>, backups and more,
+                then scan any that answer.
+              </p>
+            </li>
+            <li data-reveal class="rd2">
+              <span class="d-tag d-perm">Asks permission</span>
+              <h3>Full access</h3>
+              <p>
+                Read HttpOnly cookies and third-party files the page loaded, not just what JavaScript can see.
+              </p>
+            </li>
+            <li data-reveal class="rd3">
+              <span class="d-tag d-perm">Asks permission</span>
+              <h3>Capture network</h3>
+              <p>
+                Record API responses while you use the app and scan them, catching secrets that only appear in
+                live traffic.
+              </p>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -740,7 +790,7 @@
             <div class="dl-logo" aria-hidden="true">
               <svg viewBox="0 0 128 128"><use href="#eye" /></svg>
             </div>
-            <p class="dl-name">Watcher <span class="ver">v0.2.0</span></p>
+            <p class="dl-name">Watcher <span class="ver">v0.3.0</span></p>
             <p class="dl-meta">Chrome, Edge, Brave, Opera, Arc · Chromium 116+</p>
             <a class="btn btn-solid btn-lg btn-block" data-magnetic href="watcher.zip" download>
               <span class="btn-inner"
@@ -750,7 +800,7 @@
             </a>
             <div class="verify">
               <span class="verify-label">SHA-256 of watcher.zip</span>
-              <code id="sha256">590d4841677f07a78bcd94347aeac6707e1f3e7c3ad93f830fc90d6c496e0261</code>
+              <code id="sha256">ba202927fe918ad8bd78513a6c0b7e0286abc155cdb7f5734a0382b86d642ec4</code>
               <button type="button" data-copy="#sha256">Copy</button>
             </div>
           </aside>

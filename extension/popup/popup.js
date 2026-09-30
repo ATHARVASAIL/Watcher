@@ -6,7 +6,7 @@ import { renderSummary, renderCard } from './render.js';
 import { buildJsonReport, buildSarif, buildMarkdown } from './export.js';
 import { buildPdf } from './pdf.js';
 
-const { SEVERITIES, DEFAULT_OPTIONS, POPUP_ONLY_OPTIONS, MSG, STORAGE, STALE_AFTER_MS } =
+const { SEVERITIES, DEFAULT_OPTIONS, POPUP_ONLY_OPTIONS, OPTIONAL_FEATURES, MSG, STORAGE, STALE_AFTER_MS } =
   globalThis.__WATCHER.config;
 const { groupFindings } = globalThis.__WATCHER.common;
 const triage = globalThis.__WATCHER.triage;
@@ -23,6 +23,7 @@ const ui = {
   exportMenu: $('exportMenu'),
   clearBtn: $('clearBtn'),
   status: $('status'),
+  optNote: $('optNote'),
   progress: $('progress'),
   intro: $('intro'),
   scanning: $('scanning'),
@@ -60,18 +61,59 @@ const isRunning = (rec) =>
 
 /* ------------------------------------------------------------ options */
 
+function showOptNote(text) {
+  if (!ui.optNote) return;
+  ui.optNote.textContent = text || '';
+  ui.optNote.hidden = !text;
+}
+
 async function loadOptions() {
   const stored = (await chrome.storage.local.get(STORAGE.options))[STORAGE.options] || {};
   for (const [key, def] of Object.entries(state.options)) {
     if (typeof stored[key] === typeof def) state.options[key] = stored[key];
   }
-  for (const input of ui.optionInputs) input.checked = Boolean(state.options[input.dataset.opt]);
+  for (const input of ui.optionInputs) {
+    const feature = input.dataset.perm;
+    // A permission-gated option can only be on if the permission is still granted.
+    if (feature && state.options[input.dataset.opt]) {
+      const ok = await chrome.permissions.contains(OPTIONAL_FEATURES[feature]).catch(() => false);
+      if (!ok) state.options[input.dataset.opt] = false;
+    }
+    input.checked = Boolean(state.options[input.dataset.opt]);
+  }
 }
 
 function wireOptions() {
   for (const input of ui.optionInputs) {
-    input.addEventListener('change', () => {
-      state.options[input.dataset.opt] = input.checked;
+    input.addEventListener('change', async () => {
+      const opt = input.dataset.opt;
+      const feature = input.dataset.perm;
+      if (feature) {
+        const spec = OPTIONAL_FEATURES[feature];
+        if (input.checked) {
+          // Must run within this user gesture — request before any other await.
+          let granted = false;
+          try {
+            granted = await chrome.permissions.request(spec);
+          } catch {
+            /* treated as denied below */
+          }
+          if (!granted) {
+            input.checked = false;
+            showOptNote('Chrome did not grant that permission, so the option stays off.');
+            return;
+          }
+          showOptNote(
+            feature === 'networkCapture'
+              ? 'Capture is on. Press Scan, use the app so it makes requests, then press Stop.'
+              : 'Full access granted. Watcher can now read HttpOnly cookies and third-party files on pages you scan.',
+          );
+        } else {
+          chrome.permissions.remove(spec).catch(() => {});
+          showOptNote('');
+        }
+      }
+      state.options[opt] = input.checked;
       chrome.storage.local.set({ [STORAGE.options]: state.options }); // preferences only, never findings
     });
   }
@@ -413,7 +455,13 @@ async function render() {
   const running = isRunning(rec);
 
   ui.scanBtn.disabled = restricted;
-  ui.scanBtn.textContent = running ? 'Stop scan' : rec?.state === 'done' ? 'Rescan' : 'Scan this page';
+  ui.scanBtn.textContent = running
+    ? rec?.capturing
+      ? 'Stop & scan capture'
+      : 'Stop scan'
+    : rec?.state === 'done'
+      ? 'Rescan'
+      : 'Scan this page';
   ui.scanBtn.classList.toggle('danger', running);
   ui.exportBtn.disabled = rec?.state !== 'done';
   if (ui.exportBtn.disabled) setMenuOpen(false);
@@ -442,14 +490,19 @@ async function render() {
     else if (rec.state === 'error') setStatus(rec.error || 'Scan failed.', 'error');
     else if (running) {
       setStatus('');
-      if (rec.total) {
+      if (rec.capturing) {
+        ui.progress.removeAttribute('value');
+        ui.scanCount.textContent = 'Capturing network traffic…';
+        ui.scanCurrent.textContent = 'Use the app so it makes requests, then press Stop.';
+      } else if (rec.total) {
         ui.progress.value = rec.done / rec.total;
         ui.scanCount.textContent = `Scanning ${rec.done} / ${rec.total} sources`;
+        ui.scanCurrent.textContent = rec.current || '';
       } else {
         ui.progress.removeAttribute('value'); // indeterminate until the first progress update
         ui.scanCount.textContent = 'Starting…';
+        ui.scanCurrent.textContent = rec.current || '';
       }
-      ui.scanCurrent.textContent = rec.current || '';
     } else {
       setStatus(
         'The last scan did not finish (the page may have navigated or reloaded). Scan again.',

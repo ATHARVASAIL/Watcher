@@ -2,11 +2,13 @@
   "manifest_version": 3,
   "name": "Watcher — Frontend Secrets Auditor",
   "short_name": "Watcher",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Find secrets exposed in your own web app's frontend: JS bundles, source maps, HTML, CSS, storage and cookies. Local-only.",
   "homepage_url": "https://github.com/ATHARVASAIL/Watcher",
   "minimum_chrome_version": "116",
   "permissions": ["activeTab", "scripting", "storage"],
+  "optional_permissions": ["cookies", "debugger"],
+  "optional_host_permissions": ["*://*/*"],
   "background": {
     "service_worker": "background/service-worker.js",
     "type": "module"
